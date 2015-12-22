@@ -3,7 +3,7 @@ unit AppTethering.Observer;
 // Source: https://github.com/ortuagustin/Delphi-Utils
 // Author: Ortu Agustin
 
-// Implements observer patter for App Tethering
+// Implements observer pattern for App Tethering
 // It will listen for disconnects on Tethering Managers and Tethering Profiles
 
 interface
@@ -57,10 +57,10 @@ uses
 constructor TTetheringSubject.Create(ATetheringMgr: TTetheringManager; ATetheringAppProfile: TTetheringAppProfile);
 begin
   if not Assigned(ATetheringMgr) then
-      raise Exception.Create('TTetheringSubject.Create :: TetheringManager is unassigned!');
+    raise Exception.Create('TTetheringSubject.Create :: TetheringManager is unassigned!');
 
   if not Assigned(ATetheringAppProfile) then
-      raise Exception.Create('TTetheringSubject.Create :: TetheringAppProfile is unassigned!');
+    raise Exception.Create('TTetheringSubject.Create :: TetheringAppProfile is unassigned!');
 
   inherited Create;
   FTetheringMgr := ATetheringMgr;

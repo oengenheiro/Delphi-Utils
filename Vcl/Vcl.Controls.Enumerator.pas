@@ -22,7 +22,7 @@ type
     TEnumerator<T: TControl> = record
       FControls: TArray<T>;
       FIndex: Integer;
-      procedure Initialise(WinControl: TWinControl; Predicate: TFunc<T, Boolean>);
+      procedure Initialize(WinControl: TWinControl; Predicate: TFunc<T, Boolean>);
       class function Count(WinControl: TWinControl; Predicate: TFunc<T, Boolean>): Integer; static;
       function GetCurrent: T;
       function MoveNext: Boolean;
@@ -54,7 +54,7 @@ implementation
 
 { TControls.TEnumerator<T> }
 
-procedure TControls.TEnumerator<T>.Initialise(WinControl: TWinControl; Predicate: TFunc<T, Boolean>);
+procedure TControls.TEnumerator<T>.Initialize(WinControl: TWinControl; Predicate: TFunc<T, Boolean>);
 var
   List: TList<T>;
   Method: TProc<T>;
@@ -110,13 +110,13 @@ function TControls.TEnumeratorFactory<T>.Controls: TArray<T>;
 var
   Enumerator: TEnumerator<T>;
 begin
-  Enumerator.Initialise(FWinControl, FPredicate);
+  Enumerator.Initialize(FWinControl, FPredicate);
   Result := Enumerator.FControls;
 end;
 
 function TControls.TEnumeratorFactory<T>.GetEnumerator: TEnumerator<T>;
 begin
-  Result.Initialise(FWinControl, FPredicate);
+  Result.Initialize(FWinControl, FPredicate);
 end;
 
 class procedure TControls.WalkControls<T>(WinControl: TWinControl; Predicate: TFunc<T, Boolean>; Method: TProc<T>);
