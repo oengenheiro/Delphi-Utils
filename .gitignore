@@ -1,0 +1,10 @@
+*.exe
+*.dcu
+*.dproj.local
+*.identcache
+__history
+Backups
+Logs
+/Documentos Venta
+*.ini
+*.el
