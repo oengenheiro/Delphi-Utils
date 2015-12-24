@@ -1,0 +1,143 @@
+object FormMain: TFormMain
+  Left = 0
+  Top = 0
+  ClientHeight = 380
+  ClientWidth = 347
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 3
+  object TabControl: TTabControl
+    Align = Client
+    FullSize = True
+    Size.Width = 347.000000000000000000
+    Size.Height = 380.000000000000000000
+    Size.PlatformDefault = False
+    TabHeight = 49.000000000000000000
+    TabIndex = 0
+    TabOrder = 0
+    TabPosition = PlatformDefault
+    OnChange = TabControlChange
+    object TabItemOs: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = True
+      Size.Width = 115.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = ''
+      TabOrder = 0
+      Text = 'OS'
+      ExplicitSize.cx = 116.000000000000000000
+      ExplicitSize.cy = 49.000000000000000000
+      object StringGridOs: TStringGrid
+        Align = Client
+        Size.Width = 347.000000000000000000
+        Size.Height = 331.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        Options = [ColumnResize, ColumnMove, RowLines, RowSelect, Tabs]
+        RowCount = 0
+        RowHeight = 25.000000000000000000
+        Viewport.Width = 347.000000000000000000
+        Viewport.Height = 326.000000000000000000
+        object StringColumnName: TStringColumn
+          ReadOnly = True
+          Size.Width = 130.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+        end
+        object StringColumnValue: TStringColumn
+          Align = Client
+          ReadOnly = True
+          Size.Width = 347.000000000000000000
+          Size.Height = 326.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+        end
+      end
+    end
+    object TabItemTelephony: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 115.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = ''
+      TabOrder = 0
+      Text = 'Telephony'
+      ExplicitSize.cx = 116.000000000000000000
+      ExplicitSize.cy = 49.000000000000000000
+      object StringGridTelephony: TStringGrid
+        Align = Client
+        Size.Width = 50.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        Options = [ColumnResize, ColumnMove, RowLines, RowSelect, Tabs]
+        RowCount = 0
+        RowHeight = 25.000000000000000000
+        Viewport.Width = 50.000000000000000000
+        Viewport.Height = 45.000000000000000000
+        object StringColumn1: TStringColumn
+          ReadOnly = True
+          Size.Width = 160.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+        end
+        object StringColumn2: TStringColumn
+          Align = Client
+          ReadOnly = True
+          Size.Width = 50.000000000000000000
+          Size.Height = 45.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+        end
+      end
+    end
+    object TabItemWifi: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = False
+      Size.Width = 117.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = ''
+      TabOrder = 0
+      Text = 'WIFI'
+      ExplicitSize.cx = 115.000000000000000000
+      ExplicitSize.cy = 49.000000000000000000
+      object StringGridWifi: TStringGrid
+        Align = Client
+        Size.Width = 50.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        Options = [ColumnResize, ColumnMove, RowLines, RowSelect, Tabs]
+        RowCount = 0
+        RowHeight = 25.000000000000000000
+        Viewport.Width = 50.000000000000000000
+        Viewport.Height = 45.000000000000000000
+        object StringColumn3: TStringColumn
+          ReadOnly = True
+          Size.Width = 160.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+        end
+        object StringColumn4: TStringColumn
+          Align = Client
+          ReadOnly = True
+          Size.Width = 50.000000000000000000
+          Size.Height = 45.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+        end
+      end
+    end
+  end
+end
