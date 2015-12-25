@@ -25,8 +25,8 @@ type
     constructor Create; overload;
     constructor Create(const AReportOnStop: Boolean); overload;
     constructor Create(const AProcedureName: string; const AReportOnStop: Boolean); overload;
-    procedure Start;
-    procedure Stop;
+    function Start: Cardinal;
+    function Stop: Cardinal;
     property MSecsElapsed: Cardinal read FElapsed;
     property SecsElapsed: Cardinal read GetSecsElapsed;
     property ProcedureName: string read FProcedureName write SetProcedureName;
@@ -75,12 +75,20 @@ begin
   InfoMsg(LReportStr);
 end;
 
-procedure TChronometer.Stop;
+function TChronometer.Stop: Cardinal;
 begin
   QueryPerformanceCounter(FFinish);
+  Result := FFinish;
   FElapsed := (FFinish - FStart) * MSecsPerSec div FFrec;
   if ReportOnStop then
     DoReport;
+end;
+
+function TChronometer.Start: Cardinal;
+begin
+  QueryPerformanceFrequency(FFrec);
+  QueryPerformanceCounter(FStart);
+  Result := FStart;
 end;
 
 function TChronometer.GetSecsElapsed: Cardinal;
@@ -96,12 +104,6 @@ end;
 procedure TChronometer.SetReportOnStop(const Value: Boolean);
 begin
   FReportOnStop := Value;
-end;
-
-procedure TChronometer.Start;
-begin
-  QueryPerformanceFrequency(FFrec);
-  QueryPerformanceCounter(FStart);
 end;
 
 end.
