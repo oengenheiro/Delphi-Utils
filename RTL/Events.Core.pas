@@ -27,7 +27,7 @@ type
   TProc<T1, T2, T3, T4, T5> = reference to procedure (Arg1: T1; Arg2: T2; Arg3: T3; Arg4: T4; Arg5: T5);
 
   TEventWrapper<T1, R> = class abstract(TComponent)
-  strict private
+  strict protected
     FProc: TProc<T1>;
   public
     class function CreateEvent(AOwner: TComponent; AProc: TProc<T1>): R; virtual; abstract;
@@ -36,7 +36,7 @@ type
   end;
 
   TEventWrapper<T1, T2, R> = class abstract(TComponent)
-  strict private
+  strict protected
     FProc: TProc<T1, T2>;
   public
     class function CreateEvent(AOwner: TComponent; AProc: TProc<T1, T2>): R; virtual; abstract;
@@ -45,7 +45,7 @@ type
   end;
 
   TEventWrapper<T1, T2, T3, R> = class abstract(TComponent)
-  strict private
+  strict protected
     FProc: TProc<T1, T2, T3>;
   public
     class function CreateEvent(AOwner: TComponent; AProc: TProc<T1, T2, T3>): R; virtual; abstract;
@@ -54,7 +54,7 @@ type
   end;
 
   TEventWrapper<T1, T2, T3, T4, R> = class abstract(TComponent)
-  strict private
+  strict protected
     FProc: TProc<T1, T2, T3, T4>;
   public
     class function CreateEvent(AOwner: TComponent; AProc: TProc<T1, T2, T3, T4>): R; virtual; abstract;
@@ -63,7 +63,7 @@ type
   end;
 
   TEventWrapper<T1, T2, T3, T4, T5, R> = class abstract(TComponent)
-  strict private
+  strict protected
     FProc: TProc<T1, T2, T3, T4, T5>;
   public
     class function CreateEvent(AOwner: TComponent; AProc: TProc<T1, T2, T3, T4, T5>): R; virtual; abstract;

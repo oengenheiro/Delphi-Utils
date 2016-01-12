@@ -2,7 +2,7 @@ unit Events.Wrappers;
 
 // Source: https://github.com/ortuagustin/Delphi-Utils
 // Author: Ortu Agustin
-  
+
 // Implements TEventWrapper
 
 interface
@@ -31,6 +31,12 @@ type
                                Integer, Integer>): TMouseEvent; override;
   end;
 
+  TKeyEventWrapper = class(TEventWrapper<TObject, Word, TShiftState, TKeyEvent>)
+  public
+    class function CreateEvent(AOwner: TComponent; AProc: TProc<TObject, Word, TShiftState>): TKeyEvent; override;
+    procedure Event(Arg1: TObject; var Arg2: Word; Arg3: TShiftState); reintroduce;
+  end;
+
 implementation
 
 { TNotifyEventWrapper }
@@ -46,6 +52,18 @@ class function TMouseDownEventWrapper.CreateEvent(AOwner: TComponent; AProc: TPr
   Integer, Integer>): TMouseEvent;
 begin
   Result := TMouseDownEventWrapper.Create(AOwner, AProc).Event;
+end;
+
+{ TKeyEvent }
+
+class function TKeyEventWrapper.CreateEvent(AOwner: TComponent; AProc: TProc<TObject, Word, TShiftState>): TKeyEvent;
+begin
+  Result := TKeyEventWrapper.Create(AOwner, AProc).Event;
+end;
+
+procedure TKeyEventWrapper.Event(Arg1: TObject; var Arg2: Word; Arg3: TShiftState);
+begin
+  FProc(Arg1, Arg2, Arg3);
 end;
 
 end.
