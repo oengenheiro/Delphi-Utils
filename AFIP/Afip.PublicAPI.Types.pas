@@ -79,6 +79,16 @@ type
   public
     constructor Create(const ARawJson: string); override;
   end;
+
+  /// <summary>
+  ///   Esta excepcion se va a elevar cuando no se encuentra una constancia de
+  ///   CUIT. Desciende de Exception porque no hay informacion JSON para
+  ///   mostrar
+  /// </summary>
+  EConstanciaNotFound = class(Exception)
+  public
+    constructor Create; reintroduce;
+  end;
 {$ENDREGION}
 
 {$REGION 'TDomicilioFiscal'}
@@ -567,7 +577,13 @@ end;
 
 function TDomicilioFiscal.ToString: string;
 begin
-  Result := Direccion + ', ' + Localidad + ', ' + CodPostal;
+  Result := Direccion;
+
+  if Localidad <> EmptyStr then
+    Result := Result + ', ' + Localidad;
+
+  if CodPostal <> EmptyStr then
+    Result := Result + ', ' + CodPostal;
 end;
 
 {$ENDREGION}
@@ -646,5 +662,12 @@ begin
   Message := 'No se encontraron resultados';
 end;
 {$ENDREGION}
+
+{ EConstanciaNotFound }
+
+constructor EConstanciaNotFound.Create;
+begin
+  inherited Create('No se encontraron resultados');
+end;
 
 end.

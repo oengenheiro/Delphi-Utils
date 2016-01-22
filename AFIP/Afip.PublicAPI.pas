@@ -123,6 +123,8 @@ var
 begin
   Result := TMemoryStream.Create;
   AResponse := FHttpClient.Get(FServicesUrl[stConstancia] + Cuit, Result);
+  if Result.Size = 0 then
+    raise EConstanciaNotFound.Create;
 end;
 {$ENDREGION}
 
