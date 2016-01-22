@@ -1,5 +1,10 @@
 unit Afip.PublicAPI.Types;
 
+// Source: https://github.com/ortuagustin/Delphi-Utils
+// Author: Ortu Agustin
+
+// Interfaces, types, helpers used by the Afip.PublicAPI RTL
+
 interface
 
 uses

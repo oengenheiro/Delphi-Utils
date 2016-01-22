@@ -1,5 +1,10 @@
 unit Afip.PublicAPI.Parsers;
 
+// Source: https://github.com/ortuagustin/Delphi-Utils
+// Author: Ortu Agustin
+
+// Implements Json parsing of content retrieved from AFIP to Delphi Classes
+
 interface
 
 uses

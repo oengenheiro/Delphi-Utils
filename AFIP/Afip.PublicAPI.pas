@@ -1,5 +1,11 @@
 unit Afip.PublicAPI;
 
+// Source: https://github.com/ortuagustin/Delphi-Utils
+// Author: Ortu Agustin
+
+// Implements IApi_Afip via the TNetHTTPClient and TNetHTTPRequest classes
+// See Afip.PublicAPI.Types
+
 interface
 
 uses
