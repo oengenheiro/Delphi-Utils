@@ -18,8 +18,8 @@ object Main: TMain
     Left = 0
     Top = 0
     Width = 469
-    Height = 379
-    ActivePage = TabSheet1
+    Height = 216
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
@@ -36,14 +36,12 @@ object Main: TMain
       object MemoQueryPersona: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 100
+        Top = -63
         Width = 455
         Height = 121
         Align = alBottom
         ScrollBars = ssVertical
         TabOrder = 1
-        ExplicitLeft = 0
-        ExplicitTop = 83
       end
       object edNroCuit: TLabeledEdit
         Left = 3
@@ -59,28 +57,27 @@ object Main: TMain
       object MemoRawJsonPersona: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 227
+        Top = 64
         Width = 455
         Height = 121
         Align = alBottom
         ScrollBars = ssVertical
         TabOrder = 3
-        ExplicitTop = 46
       end
     end
     object TabSheet2: TTabSheet
       Caption = 'Consulta por numero de documento'
       ImageIndex = 1
-      ExplicitLeft = 8
       object MemoQueryDni: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 104
+        Top = -59
         Width = 455
         Height = 244
         Align = alBottom
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitTop = -57
       end
       object btnQueryDni: TButton
         Left = 330
@@ -127,6 +124,57 @@ object Main: TMain
         TabOrder = 1
       end
     end
+    object TabSheet4: TTabSheet
+      Caption = 'Parametros'
+      ImageIndex = 3
+      object lbTime: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 172
+        Width = 455
+        Height = 13
+        Align = alBottom
+        ExplicitWidth = 3
+      end
+      object btnGetParametros: TButton
+        Left = 188
+        Top = 8
+        Width = 91
+        Height = 33
+        Caption = 'Consultar'
+        TabOrder = 0
+        OnClick = btnGetParametrosClick
+      end
+      object cbParametros: TComboBox
+        Left = 10
+        Top = 14
+        Width = 145
+        Height = 21
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 1
+        Text = 'Actividades'
+        Items.Strings = (
+          'Actividades'
+          'Conceptos'
+          'Provincias'
+          'Caracterizaciones'
+          'CategoriasMonotributo'
+          'CategoriasAutonomo'
+          'Impuestos'
+          'Dependencias')
+      end
+    end
+  end
+  object memoParametros: TMemo
+    AlignWithMargins = True
+    Left = 3
+    Top = 219
+    Width = 463
+    Height = 157
+    Align = alBottom
+    ScrollBars = ssVertical
+    TabOrder = 1
   end
   object SaveDialog1: TSaveDialog
     Left = 406

@@ -5,7 +5,8 @@ uses
   MainForm in 'MainForm.pas' {Main},
   Afip.PublicAPI.Types in '..\Afip.PublicAPI.Types.pas',
   Afip.PublicAPI in '..\Afip.PublicAPI.pas',
-  Afip.PublicAPI.Parsers in '..\Afip.PublicAPI.Parsers.pas';
+  Afip.PublicAPI.Parsers in '..\Afip.PublicAPI.Parsers.pas',
+  Afip.PublicAPI.Persistance in '..\Afip.PublicAPI.Persistance.pas';
 
 {$R *.res}
 

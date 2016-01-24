@@ -8,7 +8,8 @@ uses
   Vcl.StdCtrls,
   Vcl.Controls,
   Vcl.ComCtrls,
-  Vcl.ExtCtrls, Vcl.Dialogs;
+  Vcl.ExtCtrls,
+  Vcl.Dialogs;
 
 type
   TMain = class(TForm)
@@ -26,9 +27,17 @@ type
     SaveDialog1: TSaveDialog;
     edCuitConstancia: TLabeledEdit;
     MemoRawJsonPersona: TMemo;
+    TabSheet4: TTabSheet;
+    memoParametros: TMemo;
+    btnGetParametros: TButton;
+    cbParametros: TComboBox;
+    lbTime: TLabel;
     procedure btnQueryPersonaClick(Sender: TObject);
     procedure btnQueryDniClick(Sender: TObject);
     procedure btnObtenerConstanciaClick(Sender: TObject);
+    procedure btnGetParametrosClick(Sender: TObject);
+  strict private
+    procedure DoGetParametros(const AText: string);
   end;
 
 var
@@ -39,10 +48,15 @@ implementation
 {$R *.dfm}
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  RTL.Benchmark,
   Afip.PublicAPI,
-  Afip.PublicAPI.Types;
+  Afip.PublicAPI.Types,
+  Afip.PublicAPI.Persistance,
+  System.SysUtils,
+  System.Generics.Collections;
+
+var
+  Api: IApi_Afip;
 
 function ParseArray(Input: TArray<Integer>): string;
 var
@@ -100,6 +114,67 @@ begin
   MemoQueryPersona.Lines.Add('DomicilioFiscal = ' + Persona.DomicilioFiscal.ToString);
 end;
 
+procedure TMain.DoGetParametros(const AText: string);
+var
+  Time: TBenchmarkTime;
+begin
+  Time := TBenchmark.Benchmark(1, procedure
+  var
+    I: Integer;
+    Data: TArray<TItem_Afip>;
+    Data_Dependencies: TArray<TDependencia_Afip>;
+  begin
+    if CompareText(AText, 'actividades') = 0 then
+      Data := Api.GetActividades
+    else if CompareText(AText, 'conceptos') = 0 then
+      Data := Api.GetConceptos
+    else if CompareText(AText, 'Impuestos') = 0 then
+      Data := Api.GetImpuestos
+    else if CompareText(AText, 'Caracterizaciones') = 0 then
+      Data := Api.GetCaracterizaciones
+    else if CompareText(AText, 'CategoriasMonotributo') = 0 then
+      Data := Api.GetCategoriasMonotributo
+    else if CompareText(AText, 'CategoriasAutonomo') = 0 then
+      Data := Api.GetCategoriasAutonomo
+    else if CompareText(AText, 'Provincias') = 0 then
+      Data := Api.GetProvincias
+    else if CompareText(AText, 'GetDependecias') = 0 then
+    begin
+      Data_Dependencies := Api.GetDependecias;
+      memoParametros.Lines.BeginUpdate;
+      try
+        for I := 0 to High(Data) do
+          memoParametros.Lines.Add(Format('Id %d, Descripcion %s', [Data_Dependencies[I].Id,
+                                                                    Data_Dependencies[I].Descripcion]));
+      finally
+        memoParametros.Lines.EndUpdate;
+      end;
+      Exit;
+    end;
+
+    memoParametros.Lines.BeginUpdate;
+    try
+      for I := 0 to High(Data) do
+        memoParametros.Lines.Add(Format('Id = %d ------ Descripcion = %s', [Data[I].Id, Data[I].Descripcion]));
+    finally
+      memoParametros.Lines.EndUpdate;
+    end;
+  end);
+
+  lbTime.Caption := Format('Time: %d msec', [Time.MSecs]);
+end;
+
+procedure TMain.btnGetParametrosClick(Sender: TObject);
+begin
+  btnGetParametros.Enabled := False;
+  try
+    memoParametros.Clear;
+    DoGetParametros(cbParametros.Text);
+  finally
+    btnGetParametros.Enabled := True;
+  end;
+end;
+
 procedure TMain.btnObtenerConstanciaClick(Sender: TObject);
 var
   AStream: TStream;
@@ -133,5 +208,8 @@ begin
   for Nro in Items do
     MemoQueryDni.Lines.Add(Nro);
 end;
+
+initialization
+  Api := TAfipQuery.Create(TMemoryAfipPersister.Create);
 
 end.

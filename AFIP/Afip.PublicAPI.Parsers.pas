@@ -17,10 +17,23 @@ type
     function JsonToDocumentos(const AJson: string): TArray<string>;
   end;
 
-  TAfip_PersonParser = class(TInterfacedObject, IAfip_PersonParser)
+  IAfip_ItemParser = interface
+    ['{0EF21EDC-EFE9-4600-8732-1BBE3A7B136C}']
+    function JsonToItems(const AJson: string): TArray<TItem_Afip>;
+    function JsonToDependencies(const AJson: string): TArray<TDependencia_Afip>;
+  end;
+
+  TAfip_Parser = class(TInterfacedObject, IAfip_PersonParser, IAfip_ItemParser)
   public
+{$REGION 'IAfip_PersonParser'}
     function JsonToPerson(const AJson: string): IPersona_Afip;
     function JsonToDocumentos(const AJson: string): TArray<string>;
+{$ENDREGION}
+
+{$REGION 'IAfip_ItemParser'}
+    function JsonToItems(const AJson: string): TArray<TItem_Afip>;
+    function JsonToDependencies(const AJson: string): TArray<TDependencia_Afip>;
+{$ENDREGION}
   end;
 
 implementation
@@ -33,8 +46,8 @@ uses
   System.Json.Types,
   System.Json.Readers;
 
-{$REGION 'TAfip_PersonParser'}
-function TAfip_PersonParser.JsonToDocumentos(const AJson: string): TArray<string>;
+{$REGION 'TAfip_Parser'}
+function TAfip_Parser.JsonToDocumentos(const AJson: string): TArray<string>;
 var
   TextReader: TTextReader;
   JsonReader: TJsonReader;
@@ -60,7 +73,49 @@ begin
   end;
 end;
 
-function TAfip_PersonParser.JsonToPerson(const AJson: string): IPersona_Afip;
+function TAfip_Parser.JsonToItems(const AJson: string): TArray<TItem_Afip>;
+var
+  TextReader: TTextReader;
+  JsonReader: TJsonReader;
+  List: TList<TItem_Afip>;
+  Item: TItem_Afip;
+begin
+  List := TList<TItem_Afip>.Create;
+  TextReader := TStringReader.Create(AJson);
+  try
+    JsonReader := TJsonTextReader.Create(TextReader);
+    try
+      while JsonReader.Read do
+      begin
+        case JsonReader.TokenType of
+          TJsonToken.Integer:
+          begin
+            Item.Id := JsonReader.Value.AsInteger;
+          end;
+
+          TJsonToken.String:
+          begin
+            Item.Descripcion := JsonReader.Value.ToString;
+            List.Add(Item);
+          end;
+        end;
+      end;
+    finally
+      JsonReader.Free;
+    end;
+  finally
+    Result := List.ToArray;
+    TextReader.Free;
+    List.Free;
+  end;
+end;
+
+function TAfip_Parser.JsonToDependencies(const AJson: string): TArray<TDependencia_Afip>;
+begin
+
+end;
+
+function TAfip_Parser.JsonToPerson(const AJson: string): IPersona_Afip;
 var
   JObject, JData: TJSONObject;
   JsonValue: TJSONValue;
@@ -137,11 +192,11 @@ begin
     PersonObj := TPersona_Afip.Create(AJson);
     Result := PersonObj;
     if not(TJSONBool(JObject.GetValue('success'))).AsBoolean then
-      raise EPersonNotFound.Create(AJson);
+      raise EAfipNotFound.Create(AJson);
 
     JData := TJSONObject(JObject.GetValue('data'));
     if JData = NIL then
-      raise EPersonNotFound.Create(AJson);
+      raise EAfipNotFound.Create(AJson);
 
     JsonValue := JData.GetValue('idPersona');
     if JsonValue <> NIL then

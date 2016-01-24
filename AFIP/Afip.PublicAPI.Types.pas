@@ -72,10 +72,10 @@ type
   end;
 
   /// <summary>
-  ///   Esta excepcion se va a elevar cuando se lanza una busqueda y no se
-  ///   encuentra a la persona
+  ///   Esta excepcion se va a elevar cuando se ejecuta un metodo y no hay
+  ///   resultados para devolver
   /// </summary>
-  EPersonNotFound = class(EAfipException)
+  EAfipNotFound = class(EAfipException)
   public
     constructor Create(const ARawJson: string); override;
   end;
@@ -88,6 +88,66 @@ type
   EConstanciaNotFound = class(Exception)
   public
     constructor Create; reintroduce;
+  end;
+
+  EAfipPersistanceNotFound = class(Exception)
+  public
+    constructor Create(const AObjectName: string; const AObjectId: Integer); reintroduce;
+  end;
+
+  EAfipPersistanceEmpty = class(Exception);
+{$ENDREGION}
+
+{$REGION 'TItem_Afip'}
+  /// <summary>
+  ///   Este record la estructura de los metodos que devuelven lo que la AFIP
+  ///   llama "parametros"; todos tienen un Id y una Descripcion
+  /// </summary>
+  TItem_Afip = record
+  private
+    FId: Integer;
+    FDescripcion: string;
+
+    procedure SetDescripcion(const Value: string);
+    procedure SetId(const Value: Integer);
+  public
+    property Id: Integer read FId write SetId;
+    property Descripcion: string read FDescripcion write SetDescripcion;
+  end;
+{$ENDREGION}
+
+{$REGION 'TDependencia_Afip'}
+  /// <summary>
+  ///   Este record lo devuelve solamente el metodo GetDependencias
+  /// </summary>
+  TDependencia_Afip = record
+  private
+    FId: Integer;
+    FDescripcion: string;
+    FLongitud: Double;
+    FLocalidad: string;
+    FDireccion: string;
+    FLatitud: Double;
+    FIdProvincia: Integer;
+    FCodPostal: string;
+
+    procedure SetDescripcion(const Value: string);
+    procedure SetId(const Value: Integer);
+    procedure SetCodPostal(const Value: string);
+    procedure SetDireccion(const Value: string);
+    procedure SetIdProvincia(const Value: Integer);
+    procedure SetLatitud(const Value: Double);
+    procedure SetLocalidad(const Value: string);
+    procedure SetLongitud(const Value: Double);
+  public
+    property Id: Integer read FId write SetId;
+    property Descripcion: string read FDescripcion write SetDescripcion;
+    property Direccion: string read FDireccion write SetDireccion;
+    property Localidad: string read FLocalidad write SetLocalidad;
+    property CodPostal: string read FCodPostal write SetCodPostal;
+    property IdProvincia: Integer read FIdProvincia write SetIdProvincia;
+    property Latitud: Double read FLatitud write SetLatitud;
+    property Longitud: Double read FLongitud write SetLongitud;
   end;
 {$ENDREGION}
 
@@ -311,6 +371,184 @@ type
   end;
 {$ENDREGION}
 
+{$REGION 'IPersister_Afip'}
+  /// <summary>
+  ///   Esta interface sirve como "cache" de la IApi_Afip; cuando se quieren
+  ///   obtener datos de los "parametros" (provincias, actividades, etc) se
+  ///   puede ir a buscar a esta cache o solicitar en fresco desde el
+  ///   WebService. Los datos de las personas y las constancias no se almacenan
+  ///   en cache. Se debe implementar esta interface e injectarla dentro de la
+  ///   clase que implementa IApi_Afip usando constructor injection
+  /// </summary>
+  IPersister_Afip = interface
+    ['{3FB158E3-539F-40ED-9D7C-8CBF05C2586B}']
+    /// <summary>
+    ///   Devuelve la descripcion para un id de provincia dado
+    /// </summary>
+    function GetDescripcionProvincia(const AId: Integer): string;
+
+    /// <summary>
+    ///   Agrega la provincia en la cache
+    /// </summary>
+    procedure AddDescripcionProvincia(const AId: Integer; const ADescripcion: string);
+
+    /// <summary>
+    ///   Devuelve la descripcion para un id de concepto dado
+    /// </summary>
+    function GetDescripcionConcepto(const AId: Integer): string;
+
+    /// <summary>
+    ///   Agrega el concepto en la cache
+    /// </summary>
+    procedure AddDescripcionConcepto(const AId: Integer; const ADescripcion: string);
+
+    /// <summary>
+    ///   Devuelve la descripcion para un id de actividad dado
+    /// </summary>
+    function GetDescripcionActividad(const AId: Integer): string;
+
+    /// <summary>
+    ///   Agrega la actividad en la cache
+    /// </summary>
+    procedure AddDescripcionActividad(const AId: Integer; const ADescripcion: string);
+
+    /// <summary>
+    ///   Devuelve la descripcion para un id de categoria autonomo dado
+    /// </summary>
+    function GetDescripcionCategoriaAutonomo(const AId: Integer): string;
+
+    /// <summary>
+    ///   Agrega la categoria autonomo en la cache
+    /// </summary>
+    procedure AddDescripcionCategoriaAutonomo(const AId: Integer; const ADescripcion: string);
+
+    /// <summary>
+    ///   Devuelve la descripcion para un id de categoria de monotributo dado
+    /// </summary>
+    function GetDescripcionCategoriaMonotributo(const AId: Integer): string;
+
+    /// <summary>
+    ///   Agrega la categoria de monotributo en la cache
+    /// </summary>
+    procedure AddDescripcionCategoriaMonotributo(const AId: Integer; const ADescripcion: string);
+
+    /// <summary>
+    ///   Devuelve la descripcion para un id de caracterizacion dado
+    /// </summary>
+    function GetDescripcionCaracterizaciones(const AId: Integer): string;
+
+    /// <summary>
+    ///   Agrega la caracterizacion en la cache
+    /// </summary>
+    procedure AddDescripcionCaracterizaciones(const AId: Integer; const ADescripcion: string);
+
+    /// <summary>
+    ///   Devuelve la descripcion para un id de impuesto dado
+    /// </summary>
+    function GetDescripcionImpuesto(const AId: Integer): string;
+
+    /// <summary>
+    ///   Agrega el impuesto en la cache
+    /// </summary>
+    procedure AddDescripcionImpuestos(const AId: Integer; const ADescripcion: string);
+
+    /// <summary>
+    ///   Devuelve los datos de la dependencia para un id de dependencia dado
+    /// </summary>
+    function GetDependencia(const AId: Integer): TDependencia_Afip;
+
+    /// <summary>
+    ///   Agrega la dependencia en la cache
+    /// </summary>
+    procedure AddDependencia(const AId: Integer; const ADependencia: TDependencia_Afip);
+
+    /// <summary>
+    ///   Devuelve la lista de impuestos
+    /// </summary>
+    function GetImpuestos: TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de conceptos
+    /// </summary>
+    function GetConceptos: TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de caracterizaciones
+    /// </summary>
+    function GetCaracterizaciones: TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de categorias monotributo
+    /// </summary>
+    function GetCategoriasMonotributo: TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de categorias autonomo
+    /// </summary>
+    function GetCategoriasAutonomo: TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de actividades
+    /// </summary>
+    function GetActividades: TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de provincias
+    /// </summary>
+    function GetProvincias: TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de dependencias
+    /// </summary>
+    function GetDependecias: TArray<TDependencia_Afip>;
+
+    /// <summary>
+    ///   Agrega una lista de impuestos en la cache
+    /// </summary>
+    procedure AddImpuestos(const Items: TArray<TItem_Afip>);
+
+    /// <summary>
+    ///   Agrega una lista de conceptos en la cache
+    /// </summary>
+    procedure AddConceptos(const Items: TArray<TItem_Afip>);
+
+    /// <summary>
+    ///   Agrega una lista de caracterizaciones en la cache
+    /// </summary>
+    procedure AddCaracterizaciones(const Items: TArray<TItem_Afip>);
+
+    /// <summary>
+    ///   Agrega una lista de categorias de monotributo en la cache
+    /// </summary>
+    procedure AddCategoriasMonotributo(const Items: TArray<TItem_Afip>);
+
+    /// <summary>
+    ///   Agrega una lista de categorias autonomo en la cache
+    /// </summary>
+    procedure AddCategoriasAutonomo(const Items: TArray<TItem_Afip>);
+
+    /// <summary>
+    ///   Agrega una lista de actividades en la cache
+    /// </summary>
+    procedure AddActividades(const Items: TArray<TItem_Afip>);
+
+    /// <summary>
+    ///   Agrega una lista de provincias en la cache
+    /// </summary>
+    procedure AddProvincias(const Items: TArray<TItem_Afip>);
+
+    /// <summary>
+    ///   Agrega una lista de dependencias en la cache
+    /// </summary>
+    procedure AddDependecias(const Items: TArray<TDependencia_Afip>);
+
+    /// <summary>
+    ///   Reinicia la cache; descarta todo lo que tenia almacenado
+    /// </summary>
+    procedure Clear;
+  end;
+{$ENDREGION}
+
 {$REGION 'IApi_Afip'}
   IApi_Afip = interface
     ['{DA395CEF-8DE0-4F25-88AC-BF584C3719CF}']
@@ -356,6 +594,59 @@ type
     ///   CUIT, CUIL, CDI. Solo formato númerico, sin guiones ni puntos
     /// </param>
     function ConsultaPersona(const NroDocumento: string): IPersona_Afip;
+
+    /// <summary>
+    ///   Devuelve la lista de impuestos
+    /// </summary>
+    function GetImpuestos(const GetFromPersistent: Boolean = True): TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de conceptos
+    /// </summary>
+    function GetConceptos(const GetFromPersistent: Boolean = True): TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de caracterizaciones
+    /// </summary>
+    function GetCaracterizaciones(const GetFromPersistent: Boolean = True): TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de categorias monotributo
+    /// </summary>
+    function GetCategoriasMonotributo(const GetFromPersistent: Boolean = True): TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de categorias autonomo
+    /// </summary>
+    function GetCategoriasAutonomo(const GetFromPersistent: Boolean = True): TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de actividades
+    /// </summary>
+    function GetActividades(const GetFromPersistent: Boolean = True): TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de provincias
+    /// </summary>
+    function GetProvincias(const GetFromPersistent: Boolean = True): TArray<TItem_Afip>;
+
+    /// <summary>
+    ///   Devuelve la lista de conceptos
+    /// </summary>
+    function GetDependecias(const GetFromPersistent: Boolean = True): TArray<TDependencia_Afip>;
+
+    /// <summary>
+    ///   Devuelve si se asigno o no una instancia de IPersister_Afip
+    /// </summary>
+    function GetHasPersister: Boolean;
+
+    /// <summary>
+    ///   Devuelve la instancia de IPersister_Afip asignada
+    /// </summary>
+    function GetPersister: IPersister_Afip;
+
+    property Persister: IPersister_Afip read GetPersister;
+    property HasPersister: Boolean read GetHasPersister;
   end;
 {$ENDREGION}
 
@@ -585,11 +876,22 @@ begin
   if CodPostal <> EmptyStr then
     Result := Result + ', ' + CodPostal;
 end;
-
 {$ENDREGION}
 
-{ TTipoPersonaHelper }
+{$REGION 'TItem_Afip'}
+procedure TItem_Afip.SetDescripcion(const Value: string);
+begin
+  FDescripcion := Value;
+end;
 
+procedure TItem_Afip.SetId(const Value: Integer);
+begin
+  FId := Value;
+end;
+{$ENDREGION}
+
+
+{$REGION 'TTipoPersonaHelper'}
 class function TTipoPersonaHelper.FromString(const Value: string): TTipoPersona;
 var
   AResult: TTipoPersona;
@@ -617,9 +919,9 @@ function TTipoPersonaHelper.ToString: string;
 begin
   Result := ToString(Self);
 end;
+{$ENDREGION}
 
-{ TTipoClaveHelper }
-
+{$REGION 'TTipoClaveHelper'}
 class function TTipoClaveHelper.FromString(const Value: string): TTipoClave;
 var
   AResult: TTipoClave;
@@ -648,6 +950,7 @@ function TTipoClaveHelper.ToString: string;
 begin
   Result := ToString(Self);
 end;
+{$ENDREGION}
 
 {$REGION 'Exceptions'}
 constructor EAfipException.Create(const ARawJson: string);
@@ -656,18 +959,63 @@ begin
   FRawJson := ARawJson;
 end;
 
-constructor EPersonNotFound.Create(const ARawJson: string);
+constructor EAfipNotFound.Create(const ARawJson: string);
 begin
   inherited;
   Message := 'No se encontraron resultados';
 end;
-{$ENDREGION}
-
-{ EConstanciaNotFound }
 
 constructor EConstanciaNotFound.Create;
 begin
   inherited Create('No se encontraron resultados');
 end;
+
+constructor EAfipPersistanceNotFound.Create(const AObjectName: string; const AObjectId: Integer);
+begin
+  inherited CreateFmt('No se encontro la %s con Id %d', [AObjectName, AObjectId]);
+end;
+{$ENDREGION}
+
+{$REGION 'TDependencia_Afip}
+procedure TDependencia_Afip.SetCodPostal(const Value: string);
+begin
+  FCodPostal := Value;
+end;
+
+procedure TDependencia_Afip.SetDescripcion(const Value: string);
+begin
+  FDescripcion := Value;
+end;
+
+procedure TDependencia_Afip.SetDireccion(const Value: string);
+begin
+  FDireccion := Value;
+end;
+
+procedure TDependencia_Afip.SetId(const Value: Integer);
+begin
+  FId := Value;
+end;
+
+procedure TDependencia_Afip.SetIdProvincia(const Value: Integer);
+begin
+  FIdProvincia := Value;
+end;
+
+procedure TDependencia_Afip.SetLatitud(const Value: Double);
+begin
+  FLatitud := Value;
+end;
+
+procedure TDependencia_Afip.SetLocalidad(const Value: string);
+begin
+  FLocalidad := Value;
+end;
+
+procedure TDependencia_Afip.SetLongitud(const Value: Double);
+begin
+  FLongitud := Value;
+end;
+{$ENDREGION}
 
 end.
