@@ -82,8 +82,8 @@ uses
 constructor TAfipQuery.Create(const APersister: IPersister_Afip = NIL);
 const
   BASE_URL = 'https://soa.afip.gob.ar';
-  URL_PADRON_V1 = BASE_URL + '/sr-padron/v2/';
-  URL_PADRON_V2 = BASE_URL + '/sr-padron/v1/';
+  URL_PADRON_V1 = BASE_URL + '/sr-padron/v1/';
+  URL_PADRON_V2 = BASE_URL + '/sr-padron/v2/';
   URL_PARAMETROS_V1 = BASE_URL + '/parametros/v1/';
   URL_PARAMETROS_V2 = BASE_URL + '/parametros/v2/';
 begin
