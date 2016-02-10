@@ -92,6 +92,7 @@ var
   AltoBotones, AnchoBotones, AnchoTotalBotones, Ind, Aux: Integer;
 begin
   inherited CreateNew(Application);
+  PopupMode := pmAuto;
   TipoDialogo := TipoDialogo;
   OnKeyDown := PresTecla;
   OnCloseQuery := Cerrar;
