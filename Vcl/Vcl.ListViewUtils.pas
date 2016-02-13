@@ -7,6 +7,21 @@ interface
 procedure SetSortIcon(const AListViewHandle: NativeInt; const ColIndex: Integer; const Ascending: Boolean);
 procedure ClearSortIcon(const AListViewHandle: NativeInt; const ColIndex: Integer);
 
+{$IF CompilerVersion > 21}
+type
+  TSortOrder = (soNone, soDescending, soAscending);
+
+  TSortOrderHelper = record helper for TSortOrder
+  strict private
+    class function FromInt(const Value: Integer): TSortOrder; static;
+  public
+    function ToInt: Integer;
+    function Next: TSortOrder; overload;
+    class function Next(const Value: TSortOrder): TSortOrder; overload; static;
+    class function Next(const Value: Integer): TSortOrder; overload; static;
+  end;
+{$ENDIF}
+
 implementation
 
 uses
@@ -17,6 +32,43 @@ uses
   CommCtrl,
   Windows;
   {$IFEND}
+
+{$IF CompilerVersion > 21}
+class function TSortOrderHelper.Next(const Value: TSortOrder): TSortOrder;
+begin
+  case Value of
+    soNone, soDescending: Result := soAscending;
+    soAscending: Result := soDescending;
+  end;
+end;
+
+class function TSortOrderHelper.FromInt(const Value: Integer): TSortOrder;
+begin
+  case Value of
+    0: Result := soNone;
+    1: Result := soAscending;
+    -1: Result := soDescending;
+  end;
+end;
+
+class function TSortOrderHelper.Next(const Value: Integer): TSortOrder;
+begin
+  Result := Next(FromInt(Value));
+end;
+
+function TSortOrderHelper.ToInt: Integer;
+begin
+  case Self of
+    soNone, soAscending: Result := -1;
+    soDescending: Result := 1;
+  end;
+end;
+
+function TSortOrderHelper.Next: TSortOrder;
+begin
+  Result := Next(Self);
+end;
+{$ENDIF}
 
 procedure ClearSortIcon(const AListViewHandle: NativeInt; const ColIndex: Integer);
 var
