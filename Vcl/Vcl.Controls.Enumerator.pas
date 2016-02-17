@@ -138,7 +138,7 @@ begin
     else
       Include := True;
 
-    if Include then
+    if Include and Assigned(Method) then
       Method(Control);
 
     if Control is TWinControl then
