@@ -28,9 +28,6 @@ implementation
 
 {$R *.dfm}
 
-uses
-  Vcl.CustomDialogs;
-
 procedure TForm1.Drop(const FileNames: array of string);
 var
   AFile: string;
