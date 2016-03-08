@@ -13,7 +13,7 @@ type
 
   TSortOrderHelper = record helper for TSortOrder
   strict private
-    class function FromInt(const Value: Integer): TSortOrder; static;
+    class function Parse(const Value: Integer): TSortOrder; static;
   public
     function ToInt: Integer;
     function Next: TSortOrder; overload;
@@ -26,6 +26,7 @@ implementation
 
 uses
   {$IF CompilerVersion > 21}
+  System.SysUtils,
   Winapi.CommCtrl,
   Winapi.Windows;
   {$ELSE}
@@ -39,28 +40,35 @@ begin
   case Value of
     soNone, soDescending: Result := soAscending;
     soAscending: Result := soDescending;
+  else
+    raise Exception.CreateFmt('TSortOrderHelper.Next :: Unknown next value for %d', [Ord(Value)]);
   end;
 end;
 
-class function TSortOrderHelper.FromInt(const Value: Integer): TSortOrder;
+class function TSortOrderHelper.Parse(const Value: Integer): TSortOrder;
 begin
   case Value of
     0: Result := soNone;
     1: Result := soAscending;
     -1: Result := soDescending;
+  else
+    raise Exception.CreateFmt('TSortOrderHelper.Parse :: Unknown value for %d', [Value]);
   end;
 end;
 
 class function TSortOrderHelper.Next(const Value: Integer): TSortOrder;
 begin
-  Result := Next(FromInt(Value));
+  Result := Next(Parse(Value));
 end;
 
 function TSortOrderHelper.ToInt: Integer;
 begin
   case Self of
-    soNone, soAscending: Result := -1;
-    soDescending: Result := 1;
+    soNone: Result := 0;
+    soAscending: Result := 1;
+    soDescending: Result := -1;
+  else
+    raise Exception.CreateFmt('TSortOrderHelper.ToInt :: Unknown Value for', [Ord(Self)]);
   end;
 end;
 
