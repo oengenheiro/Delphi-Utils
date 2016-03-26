@@ -10,11 +10,9 @@ interface
 
 uses
   Afip.PublicAPI.Types,
+  Afip.PublicAPI.HttpClient,
   Afip.PublicAPI.Parsers,
-  System.Classes,
-  System.Net.URLClient,
-  System.Net.HttpClient,
-  System.Net.HttpClientComponent;
+  System.Classes;
 
 type
 {$REGION 'TAfipQuery'}
@@ -23,21 +21,18 @@ type
     TServiceType = (stPersona, stPersonasDni, stConstancia, stImpuestos, stConceptos, stCaracterizaciones,
       stCatMonotributo, stCatAutonomo, stActividades, stProvincias, stDependencias);
   strict private
+    FHttpClient: IHttpClient;
     FPersister: IPersister_Afip;
     FPersonParser: IAfip_PersonParser;
     FItemsParser: IAfip_ItemParser;
-    FHttpClient: TNetHTTPClient;
-    FHttpRequest: TNetHTTPRequest;
     FServicesUrl: array [TServiceType] of string;
 
     function GetHasPersister: Boolean;
     function GetPersister: IPersister_Afip;
 
-    function DoExecuteRequest(const AService: TServiceType; const Param: string): IHTTPResponse; overload;
-    function DoExecuteRequest(const AService: TServiceType; const Param: string; out RawJson: string): IHTTPResponse; overload;
+    function DoExecuteRequest(const AService: TServiceType; const Param: string): string;
   public
-    constructor Create(const APersister: IPersister_Afip = NIL);
-    destructor Destroy; override;
+    constructor Create(const AHttpClient: IHttpClient; const APersister: IPersister_Afip = NIL);
 
     function ConsultaNroDocumento(const NroDocumento: string): TArray<string>; overload;
     function ObtenerConstancia(const Cuit: string): TStream; overload;
@@ -58,28 +53,13 @@ type
   end;
 {$ENDREGION}
 
-// estas funciones mapean a las mismas provistas por la clase; es para usarlas de forma static,
-// es decir, como si fueran funciones de clase
-function ConsultaNroDocumento(const NroDocumento: string): TArray<string>; overload;
-function ObtenerConstancia(const Cuit: string): TStream; overload;
-function ObtenerConstancia(const Cuit: Int64): TStream; overload;
-function ConsultaPersona(const NroDocumento: string): IPersona_Afip; overload;
-function GetImpuestos(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-function GetConceptos(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-function GetCaracterizaciones(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-function GetCategoriasMonotributo(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-function GetCategoriasAutonomo(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-function GetActividades(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-function GetProvincias(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-function GetDependecias(const GetFromPersistent: Boolean): TArray<TDependencia_Afip>;
-
 implementation
 
 uses
   System.SysUtils;
 
 {$REGION 'TAfipQuery'}
-constructor TAfipQuery.Create(const APersister: IPersister_Afip = NIL);
+constructor TAfipQuery.Create(const AHttpClient: IHttpClient; const APersister: IPersister_Afip = NIL);
 const
   BASE_URL = 'https://soa.afip.gob.ar';
   URL_PADRON_V1 = BASE_URL + '/sr-padron/v1/';
@@ -87,11 +67,17 @@ const
   URL_PARAMETROS_V1 = BASE_URL + '/parametros/v1/';
   URL_PARAMETROS_V2 = BASE_URL + '/parametros/v2/';
 begin
+  if AHttpClient = NIL then
+    raise Exception.CreateFmt('%s.Create :: AHttpClient is NIL', [ClassName]);
+
   inherited Create;
   FPersonParser := TAfip_Parser.Create;
   FItemsParser := TAfip_Parser.Create;
+
   if APersister <> NIL then
     FPersister := APersister;
+
+  FHttpClient := AHttpClient;
 
   FServicesUrl[stPersona] := URL_PADRON_V2 + 'persona/';
   FServicesUrl[stPersonasDni] := URL_PADRON_V2 + 'personas/';
@@ -104,21 +90,6 @@ begin
   FServicesUrl[stActividades] := URL_PARAMETROS_V1 + 'actividades';
   FServicesUrl[stProvincias] := URL_PARAMETROS_V1 + 'provincias';
   FServicesUrl[stDependencias] := URL_PARAMETROS_V2 + 'dependencias';
-
-  FHttpClient := TNetHTTPClient.Create(NIL);
-  FHttpClient.AllowCookies := True;
-  FHttpClient.HandleRedirects := True;
-
-  FHttpRequest := TNetHTTPRequest.Create(NIL);
-  FHttpRequest.Client := FHttpClient;
-  FHttpRequest.MethodString := 'GET';
-end;
-
-destructor TAfipQuery.Destroy;
-begin
-  FHttpClient.Free;
-  FHttpRequest.Free;
-  inherited;
 end;
 
 function TAfipQuery.GetHasPersister: Boolean;
@@ -126,24 +97,16 @@ begin
   Result := FPersister <> NIL;
 end;
 
-function TAfipQuery.DoExecuteRequest(const AService: TServiceType; const Param: string): IHTTPResponse;
+function TAfipQuery.DoExecuteRequest(const AService: TServiceType; const Param: string): string;
 begin
-  FHttpRequest.URL := FServicesUrl[AService] + Param;
-  Result := FHttpRequest.Execute;
-end;
-
-function TAfipQuery.DoExecuteRequest(const AService: TServiceType; const Param: string; out RawJson: string): IHTTPResponse;
-begin
-  Result := DoExecuteRequest(AService, Param);
-  RawJson := Result.ContentAsString(TEncoding.UTF8);
+  Result := FHttpClient.HttpGetText(FServicesUrl[AService] + Param);
 end;
 
 function TAfipQuery.ConsultaNroDocumento(const NroDocumento: string): TArray<string>;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
-  AResponse := DoExecuteRequest(stPersonasDni, NroDocumento, RawJson);
+  RawJson := DoExecuteRequest(stPersonasDni, NroDocumento);
   Result := FPersonParser.JsonToDocumentos(RawJson);
   if Length(Result) = 0 then
     raise EAfipNotFound.Create(RawJson);
@@ -151,10 +114,9 @@ end;
 
 function TAfipQuery.ConsultaPersona(const NroDocumento: string): IPersona_Afip;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
-  AResponse := DoExecuteRequest(stPersona, NroDocumento, RawJson);
+  RawJson := DoExecuteRequest(stPersona, NroDocumento);
   Result := FPersonParser.JsonToPerson(RawJson);
 end;
 
@@ -164,18 +126,14 @@ begin
 end;
 
 function TAfipQuery.ObtenerConstancia(const Cuit: string): TStream;
-var
-  AResponse: IHTTPResponse;
 begin
-  Result := TMemoryStream.Create;
-  AResponse := FHttpClient.Get(FServicesUrl[stConstancia] + Cuit, Result);
+  Result := FHttpClient.HttpGetBinary(FServicesUrl[stConstancia] + Cuit);
   if Result.Size = 0 then
     raise EConstanciaNotFound.Create;
 end;
 
 function TAfipQuery.GetActividades(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
   if GetFromPersistent and HasPersister then
@@ -194,7 +152,7 @@ begin
     end;
   end;
 
-  AResponse := DoExecuteRequest(stActividades, EmptyStr, RawJson);
+  RawJson := DoExecuteRequest(stActividades, EmptyStr);
   Result := FItemsParser.JsonToItems(RawJson);
 
   if HasPersister then
@@ -203,7 +161,6 @@ end;
 
 function TAfipQuery.GetCaracterizaciones(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
   if GetFromPersistent and HasPersister then
@@ -222,7 +179,7 @@ begin
     end;
   end;
 
-  AResponse := DoExecuteRequest(stCaracterizaciones, EmptyStr, RawJson);
+  RawJson := DoExecuteRequest(stCaracterizaciones, EmptyStr);
   Result := FItemsParser.JsonToItems(RawJson);
 
   if HasPersister then
@@ -231,7 +188,6 @@ end;
 
 function TAfipQuery.GetCategoriasAutonomo(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
   if GetFromPersistent and HasPersister then
@@ -250,7 +206,7 @@ begin
     end;
   end;
 
-  AResponse := DoExecuteRequest(stCatAutonomo, EmptyStr, RawJson);
+  RawJson := DoExecuteRequest(stCatAutonomo, EmptyStr);
   Result := FItemsParser.JsonToItems(RawJson);
 
   if HasPersister then
@@ -259,7 +215,6 @@ end;
 
 function TAfipQuery.GetCategoriasMonotributo(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
   if GetFromPersistent and HasPersister then
@@ -278,7 +233,7 @@ begin
     end;
   end;
 
-  AResponse := DoExecuteRequest(stCatMonotributo, EmptyStr, RawJson);
+  RawJson := DoExecuteRequest(stCatMonotributo, EmptyStr);
   Result := FItemsParser.JsonToItems(RawJson);
 
   if HasPersister then
@@ -287,7 +242,6 @@ end;
 
 function TAfipQuery.GetConceptos(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
   if GetFromPersistent and HasPersister then
@@ -306,7 +260,7 @@ begin
     end;
   end;
 
-  AResponse := DoExecuteRequest(stConceptos, EmptyStr, RawJson);
+  RawJson := DoExecuteRequest(stConceptos, EmptyStr);
   Result := FItemsParser.JsonToItems(RawJson);
 
   if HasPersister then
@@ -315,7 +269,6 @@ end;
 
 function TAfipQuery.GetDependecias(const GetFromPersistent: Boolean): TArray<TDependencia_Afip>;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
   if GetFromPersistent and HasPersister then
@@ -334,7 +287,7 @@ begin
     end;
   end;
 
-  AResponse := DoExecuteRequest(stDependencias, EmptyStr, RawJson);
+  RawJson := DoExecuteRequest(stDependencias, EmptyStr);
   Result := FItemsParser.JsonToDependencies(RawJson);
 
   if HasPersister then
@@ -343,7 +296,6 @@ end;
 
 function TAfipQuery.GetImpuestos(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
   if GetFromPersistent and HasPersister then
@@ -361,7 +313,8 @@ begin
         raise E;
     end;
   end;
-  AResponse := DoExecuteRequest(stImpuestos, EmptyStr, RawJson);
+
+  RawJson := DoExecuteRequest(stImpuestos, EmptyStr);
   Result := FItemsParser.JsonToItems(RawJson);
 
   if HasPersister then
@@ -378,7 +331,6 @@ end;
 
 function TAfipQuery.GetProvincias(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
 var
-  AResponse: IHTTPResponse;
   RawJson: string;
 begin
   if GetFromPersistent and HasPersister then
@@ -397,108 +349,12 @@ begin
     end;
   end;
 
-  AResponse := DoExecuteRequest(stProvincias, EmptyStr, RawJson);
+  RawJson := DoExecuteRequest(stProvincias, EmptyStr);
   Result := FItemsParser.JsonToItems(RawJson);
 
   if HasPersister then
     Persister.AddProvincias(Result);
 end;
 {$ENDREGION}
-
-function ConsultaNroDocumento(const NroDocumento: string): TArray<string>;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.ConsultaNroDocumento(NroDocumento);
-end;
-
-function ObtenerConstancia(const Cuit: Int64): TStream;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.ObtenerConstancia(Cuit);
-end;
-
-function ObtenerConstancia(const Cuit: string): TStream;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.ObtenerConstancia(Cuit);
-end;
-
-function ConsultaPersona(const NroDocumento: string): IPersona_Afip;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.ConsultaPersona(NroDocumento);
-end;
-
-function GetImpuestos(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.GetImpuestos(GetFromPersistent);
-end;
-
-function GetConceptos(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.GetConceptos(GetFromPersistent);
-end;
-
-function GetCaracterizaciones(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.GetCaracterizaciones(GetFromPersistent);
-end;
-
-function GetCategoriasMonotributo(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.GetCategoriasMonotributo(GetFromPersistent);
-end;
-
-function GetCategoriasAutonomo(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.GetCategoriasAutonomo(GetFromPersistent);
-end;
-
-function GetActividades(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.GetActividades(GetFromPersistent);
-end;
-
-function GetProvincias(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.GetProvincias(GetFromPersistent);
-end;
-
-function GetDependecias(const GetFromPersistent: Boolean): TArray<TDependencia_Afip>;
-var
-  Afip_API: IApi_Afip;
-begin
-  Afip_API := TAfipQuery.Create;
-  Result := Afip_API.GetDependecias(GetFromPersistent);
-end;
 
 end.

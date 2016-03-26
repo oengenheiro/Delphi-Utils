@@ -3,6 +3,7 @@ unit MainForm;
 interface
 
 uses
+  Afip.PublicAPI.HttpClient,
   System.Classes,
   Vcl.Forms,
   Vcl.StdCtrls,
@@ -16,9 +17,6 @@ type
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
-    btnQueryPersona: TButton;
-    MemoQueryPersona: TMemo;
-    edNroCuit: TLabeledEdit;
     MemoQueryDni: TMemo;
     btnQueryDni: TButton;
     edNroDni: TLabeledEdit;
@@ -26,18 +24,24 @@ type
     btnObtenerConstancia: TButton;
     SaveDialog1: TSaveDialog;
     edCuitConstancia: TLabeledEdit;
-    MemoRawJsonPersona: TMemo;
     TabSheet4: TTabSheet;
-    memoParametros: TMemo;
     btnGetParametros: TButton;
     cbParametros: TComboBox;
     lbTime: TLabel;
+    pTop: TPanel;
+    rgHttpLibrary: TRadioGroup;
+    edNroCuit: TLabeledEdit;
+    MemoRawJsonPersona: TMemo;
+    btnQueryPersona: TButton;
+    MemoQueryPersona: TMemo;
+    memoParametros: TMemo;
     procedure btnQueryPersonaClick(Sender: TObject);
     procedure btnQueryDniClick(Sender: TObject);
     procedure btnObtenerConstanciaClick(Sender: TObject);
     procedure btnGetParametrosClick(Sender: TObject);
   strict private
     procedure DoGetParametros(const AText: string);
+    function GetHttpClient: IHttpClient;
   end;
 
 var
@@ -52,11 +56,10 @@ uses
   Afip.PublicAPI,
   Afip.PublicAPI.Types,
   Afip.PublicAPI.Persistance,
+  Afip.PublicAPI.NetHttpClient,
+  Afip.PublicAPI.SynapseHttpClient,
   System.SysUtils,
   System.Generics.Collections;
-
-var
-  Api: IApi_Afip;
 
 function ParseArray(Input: TArray<Integer>): string;
 var
@@ -91,7 +94,7 @@ var
   Api: IApi_Afip;
   Persona: IPersona_Afip;
 begin
-  Api := TAfipQuery.Create;
+  Api := TAfipQuery.Create(GetHttpClient);
   Persona := Api.ConsultaPersona(edNroCuit.Text);
   MemoRawJsonPersona.Text := Persona.RawJson;
   MemoQueryPersona.Clear;
@@ -116,8 +119,10 @@ end;
 
 procedure TMain.DoGetParametros(const AText: string);
 var
+  Api: IApi_Afip;
   Time: TBenchmarkTime;
 begin
+  Api := TAfipQuery.Create(GetHttpClient);
   Time := TBenchmark.Benchmark(1, procedure
   var
     I: Integer;
@@ -164,6 +169,16 @@ begin
   lbTime.Caption := Format('Time: %d msec', [Time.MSecs]);
 end;
 
+function TMain.GetHttpClient: IHttpClient;
+begin
+  case rgHttpLibrary.ItemIndex of
+    0: Result := TSynapseHttpClient.Create;
+    1: result := TNativeHttpClient.Create;
+  else
+    raise Exception.Create('Debe indicar una biblioteca HTTP');
+  end;
+end;
+
 procedure TMain.btnGetParametrosClick(Sender: TObject);
 begin
   btnGetParametros.Enabled := False;
@@ -177,10 +192,12 @@ end;
 
 procedure TMain.btnObtenerConstanciaClick(Sender: TObject);
 var
+  Api: IApi_Afip;
   AStream: TStream;
   AFileStream: TFileStream;
 begin
-  AStream := ObtenerConstancia(edCuitConstancia.Text);
+  Api := TAfipQuery.Create(GetHttpClient);
+  AStream := Api.ObtenerConstancia(edCuitConstancia.Text);
   try
     AStream.Position := 0;
     if not SaveDialog1.Execute then
@@ -200,16 +217,15 @@ end;
 
 procedure TMain.btnQueryDniClick(Sender: TObject);
 var
+  Api: IApi_Afip;
   Items: TArray<string>;
   Nro: string;
 begin
-  Items := ConsultaNroDocumento(edNroDni.Text);
+  Api := TAfipQuery.Create(GetHttpClient);
+  Items := Api.ConsultaNroDocumento(edNroDni.Text);
   MemoQueryDni.Clear;
   for Nro in Items do
     MemoQueryDni.Lines.Add(Nro);
 end;
-
-initialization
-  Api := TAfipQuery.Create(TMemoryAfipPersister.Create);
 
 end.
