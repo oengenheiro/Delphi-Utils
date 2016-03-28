@@ -12,16 +12,18 @@ object Main: TMain
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 17
   object PageControl1: TPageControl
     Left = 0
-    Top = 72
+    Top = 82
     Width = 759
-    Height = 482
-    ActivePage = TabSheet4
+    Height = 472
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
+    ExplicitTop = 72
     ExplicitWidth = 479
     ExplicitHeight = 485
     object TabSheet1: TTabSheet
@@ -31,7 +33,7 @@ object Main: TMain
       object MemoQueryPersona: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 76
+        Top = 66
         Width = 745
         Height = 244
         Align = alBottom
@@ -52,7 +54,7 @@ object Main: TMain
       object MemoRawJsonPersona: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 326
+        Top = 316
         Width = 745
         Height = 121
         Align = alBottom
@@ -81,7 +83,7 @@ object Main: TMain
       object MemoQueryDni: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 100
+        Top = 90
         Width = 745
         Height = 347
         Align = alBottom
@@ -145,7 +147,7 @@ object Main: TMain
       object lbTime: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 55
+        Top = 45
         Width = 745
         Height = 17
         Align = alBottom
@@ -184,7 +186,7 @@ object Main: TMain
       object memoParametros: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 78
+        Top = 68
         Width = 745
         Height = 369
         Align = alBottom
@@ -200,19 +202,17 @@ object Main: TMain
     Left = 3
     Top = 3
     Width = 753
-    Height = 66
+    Height = 76
     Align = alTop
     BevelOuter = bvNone
     ShowCaption = False
     TabOrder = 1
-    ExplicitLeft = 2
-    ExplicitTop = 0
     object rgHttpLibrary: TRadioGroup
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 236
-      Height = 60
+      Height = 70
       Align = alLeft
       Caption = 'Biblioteca HTTP'
       ItemIndex = 0
@@ -220,13 +220,14 @@ object Main: TMain
         'Synapse (open source, third-party)'
         'NetHttp (Delphi XE8+)')
       TabOrder = 0
+      ExplicitHeight = 60
     end
     object rgPersistencia: TRadioGroup
       AlignWithMargins = True
       Left = 487
       Top = 3
       Width = 236
-      Height = 60
+      Height = 70
       Align = alLeft
       Caption = 'Persistencia'
       ItemIndex = 0
@@ -236,20 +237,22 @@ object Main: TMain
       TabOrder = 2
       OnClick = rgPersistenciaClick
       ExplicitLeft = 245
+      ExplicitHeight = 60
     end
     object rgJsonLibrary: TRadioGroup
       AlignWithMargins = True
       Left = 245
       Top = 3
       Width = 236
-      Height = 60
+      Height = 70
       Align = alLeft
       Caption = 'Biblioteca JSON'
       ItemIndex = 0
       Items.Strings = (
-        'System.Json')
+        'System.Json'
+        'lkJson (open source, third-party)')
       TabOrder = 1
-      ExplicitLeft = 267
+      ExplicitHeight = 64
     end
   end
   object SaveDialog1: TSaveDialog

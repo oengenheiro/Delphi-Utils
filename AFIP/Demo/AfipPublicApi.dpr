@@ -10,7 +10,8 @@ uses
   Afip.PublicAPI.HttpClient in '..\Afip.PublicAPI.HttpClient.pas',
   Afip.PublicAPI.NetHttpClient in '..\Afip.PublicAPI.NetHttpClient.pas',
   Afip.PublicAPI.SynapseHttpClient in '..\Afip.PublicAPI.SynapseHttpClient.pas',
-  Afip.PublicAPI.Parsers.Native in '..\Afip.PublicAPI.Parsers.Native.pas';
+  Afip.PublicAPI.Parsers.Native in '..\Afip.PublicAPI.Parsers.Native.pas',
+  Afip.PublicAPI.Parsers.lkJson in '..\Afip.PublicAPI.Parsers.lkJson.pas';
 
 {$R *.res}
 

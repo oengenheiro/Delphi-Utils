@@ -45,6 +45,7 @@ type
     procedure btnObtenerConstanciaClick(Sender: TObject);
     procedure btnGetParametrosClick(Sender: TObject);
     procedure rgPersistenciaClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   strict private
     FPersister: IPersister_Afip;
 
@@ -72,6 +73,7 @@ uses
   Afip.PublicAPI.NetHttpClient,
   Afip.PublicAPI.SynapseHttpClient,
   Afip.PublicAPI.Parsers.Native,
+  Afip.PublicAPI.Parsers.lkJson,
   System.SysUtils,
   System.Generics.Collections;
 
@@ -126,6 +128,7 @@ function TMain.GetItemsParser: IAfip_ItemParser;
 begin
   case rgJsonLibrary.ItemIndex of
     0: Result := TNativeJsonAfip_Parser.Create;
+    1: Result := TlkJsonAfip_Parser.Create;
   else
     raise Exception.Create('No se pudo crear IAfip_ItemParser :: Debe indicar una biblioteca JSON');
   end;
@@ -135,6 +138,7 @@ function TMain.GetPersonParser: IAfip_PersonParser;
 begin
   case rgJsonLibrary.ItemIndex of
     0: Result := TNativeJsonAfip_Parser.Create;
+    1: Result := TlkJsonAfip_Parser.Create;
   else
     raise Exception.Create('No se pudo crear IAfip_PersonParser :: Debe indicar una biblioteca JSON');
   end;
@@ -223,6 +227,11 @@ begin
   end);
 
   lbTime.Caption := Format('Time: %d msec', [Time.MSecs]);
+end;
+
+procedure TMain.FormCreate(Sender: TObject);
+begin
+  PageControl1.ActivePageIndex := 0;
 end;
 
 procedure TMain.btnGetParametrosClick(Sender: TObject);

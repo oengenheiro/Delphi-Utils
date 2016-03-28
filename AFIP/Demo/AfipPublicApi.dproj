@@ -110,6 +110,7 @@
         <DCCReference Include="..\Afip.PublicAPI.NetHttpClient.pas"/>
         <DCCReference Include="..\Afip.PublicAPI.SynapseHttpClient.pas"/>
         <DCCReference Include="..\Afip.PublicAPI.Parsers.Native.pas"/>
+        <DCCReference Include="..\Afip.PublicAPI.Parsers.lkJson.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
