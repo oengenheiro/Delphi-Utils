@@ -12,7 +12,7 @@ uses
   Afip.PublicAPI.Parsers;
 
 type
-  TAfip_Parser = class(TInterfacedObject, IAfip_PersonParser, IAfip_ItemParser)
+  TNativeJsonAfip_Parser = class(TInterfacedObject, IAfip_PersonParser, IAfip_ItemParser)
   public
 {$REGION 'IAfip_PersonParser'}
     function JsonToPerson(const AJson: string): IPersona_Afip;
@@ -36,7 +36,7 @@ uses
   System.Json.Readers;
 
 {$REGION 'TAfip_Parser'}
-function TAfip_Parser.JsonToDocumentos(const AJson: string): TArray<string>;
+function TNativeJsonAfip_Parser.JsonToDocumentos(const AJson: string): TArray<string>;
 var
   TextReader: TTextReader;
   JsonReader: TJsonReader;
@@ -62,7 +62,7 @@ begin
   end;
 end;
 
-function TAfip_Parser.JsonToItems(const AJson: string): TArray<TItem_Afip>;
+function TNativeJsonAfip_Parser.JsonToItems(const AJson: string): TArray<TItem_Afip>;
 var
   TextReader: TTextReader;
   JsonReader: TJsonReader;
@@ -99,12 +99,12 @@ begin
   end;
 end;
 
-function TAfip_Parser.JsonToDependencies(const AJson: string): TArray<TDependencia_Afip>;
+function TNativeJsonAfip_Parser.JsonToDependencies(const AJson: string): TArray<TDependencia_Afip>;
 begin
 { TODO : function TAfip_Parser.JsonToDependencies(const AJson: string): TArray<TDependencia_Afip>; }
 end;
 
-function TAfip_Parser.JsonToPerson(const AJson: string): IPersona_Afip;
+function TNativeJsonAfip_Parser.JsonToPerson(const AJson: string): IPersona_Afip;
 var
   JObject, JData: TJSONObject;
   JsonValue: TJSONValue;

@@ -125,7 +125,7 @@ end;
 function TMain.GetItemsParser: IAfip_ItemParser;
 begin
   case rgJsonLibrary.ItemIndex of
-    0: Result := TAfip_Parser.Create;
+    0: Result := TNativeJsonAfip_Parser.Create;
   else
     raise Exception.Create('No se pudo crear IAfip_ItemParser :: Debe indicar una biblioteca JSON');
   end;
@@ -134,7 +134,7 @@ end;
 function TMain.GetPersonParser: IAfip_PersonParser;
 begin
   case rgJsonLibrary.ItemIndex of
-    0: Result := TAfip_Parser.Create;
+    0: Result := TNativeJsonAfip_Parser.Create;
   else
     raise Exception.Create('No se pudo crear IAfip_PersonParser :: Debe indicar una biblioteca JSON');
   end;
