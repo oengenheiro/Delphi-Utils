@@ -33,8 +33,11 @@ type
 
     function DoExecuteRequest(const AService: TServiceType; const Param: string): string;
   public
-    constructor Create(const AHttpClient: IHttpClient); overload;
-    constructor Create(const AHttpClient: IHttpClient; const APersister: IPersister_Afip); overload;
+    constructor Create(const AHttpClient: IHttpClient; const APersonParser: IAfip_PersonParser;
+      const AItemsParser: IAfip_ItemParser); overload;
+
+    constructor Create(const AHttpClient: IHttpClient; const APersonParser: IAfip_PersonParser;
+      const AItemsParser: IAfip_ItemParser; const APersister: IPersister_Afip); overload;
 
     function ConsultaNroDocumento(const NroDocumento: string): TArray<string>; overload;
     function ObtenerConstancia(const Cuit: string): TStream; overload;
@@ -61,7 +64,9 @@ uses
   System.SysUtils;
 
 {$REGION 'TAfipQuery'}
-constructor TAfipQuery.Create(const AHttpClient: IHttpClient);
+
+constructor TAfipQuery.Create(const AHttpClient: IHttpClient; const APersonParser: IAfip_PersonParser;
+  const AItemsParser: IAfip_ItemParser);
 const
   BASE_URL = 'https://soa.afip.gob.ar';
   URL_PADRON_V1 = BASE_URL + '/sr-padron/v1/';
@@ -72,9 +77,15 @@ begin
   if AHttpClient = NIL then
     raise Exception.CreateFmt('%s.Create :: AHttpClient is NIL', [ClassName]);
 
+  if APersonParser = NIL then
+    raise Exception.CreateFmt('%s.Create :: APersonParser is NIL', [ClassName]);
+
+  if AItemsParser = NIL then
+    raise Exception.CreateFmt('%s.Create :: AItemsParser is NIL', [ClassName]);
+
   inherited Create;
-  FPersonParser := TAfip_Parser.Create;
-  FItemsParser := TAfip_Parser.Create;
+  FPersonParser := APersonParser;
+  FItemsParser := AItemsParser;
 
   FHttpClient := AHttpClient;
 
@@ -91,9 +102,10 @@ begin
   FServicesUrl[stDependencias] := URL_PARAMETROS_V2 + 'dependencias';
 end;
 
-constructor TAfipQuery.Create(const AHttpClient: IHttpClient; const APersister: IPersister_Afip);
+constructor TAfipQuery.Create(const AHttpClient: IHttpClient; const APersonParser: IAfip_PersonParser;
+  const AItemsParser: IAfip_ItemParser; const APersister: IPersister_Afip);
 begin
-  Create(AHttpClient);
+  Create(AHttpClient, APersonParser, AItemsParser);
   if APersister <> NIL then
     FPersister := APersister;
 end;

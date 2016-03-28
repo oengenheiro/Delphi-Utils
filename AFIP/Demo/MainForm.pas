@@ -3,8 +3,10 @@ unit MainForm;
 interface
 
 uses
+  Afip.PublicAPI,
   Afip.PublicAPI.Types,
   Afip.PublicAPI.HttpClient,
+  Afip.PublicAPI.Parsers,
   System.Classes,
   Vcl.Forms,
   Vcl.StdCtrls,
@@ -37,6 +39,7 @@ type
     MemoQueryPersona: TMemo;
     memoParametros: TMemo;
     rgPersistencia: TRadioGroup;
+    rgJsonLibrary: TRadioGroup;
     procedure btnQueryPersonaClick(Sender: TObject);
     procedure btnQueryDniClick(Sender: TObject);
     procedure btnObtenerConstanciaClick(Sender: TObject);
@@ -46,7 +49,12 @@ type
     FPersister: IPersister_Afip;
 
     procedure DoGetParametros(const AText: string);
+
     function GetHttpClient: IHttpClient;
+    function GetPersonParser: IAfip_PersonParser;
+    function GetItemsParser: IAfip_ItemParser;
+
+    function CreateAfipAPI: IApi_Afip;
   strict protected
     property Persister: IPersister_Afip read FPersister;
   end;
@@ -60,10 +68,10 @@ implementation
 
 uses
   RTL.Benchmark,
-  Afip.PublicAPI,
   Afip.PublicAPI.Persistance,
   Afip.PublicAPI.NetHttpClient,
   Afip.PublicAPI.SynapseHttpClient,
+  Afip.PublicAPI.Parsers.Native,
   System.SysUtils,
   System.Generics.Collections;
 
@@ -95,12 +103,54 @@ begin
   end;
 end;
 
+procedure TMain.rgPersistenciaClick(Sender: TObject);
+begin
+  case rgPersistencia.ItemIndex of
+    1: FPersister := TMemoryAfipPersister.Create;
+  else
+    FPersister := NIL; // no usar persistencia
+  end;
+end;
+
+function TMain.GetHttpClient: IHttpClient;
+begin
+  case rgHttpLibrary.ItemIndex of
+    0: Result := TSynapseHttpClient.Create;
+    1: Result := TNativeHttpClient.Create;
+  else
+    raise Exception.Create('Debe indicar una biblioteca HTTP');
+  end;
+end;
+
+function TMain.GetItemsParser: IAfip_ItemParser;
+begin
+  case rgJsonLibrary.ItemIndex of
+    0: Result := TAfip_Parser.Create;
+  else
+    raise Exception.Create('No se pudo crear IAfip_ItemParser :: Debe indicar una biblioteca JSON');
+  end;
+end;
+
+function TMain.GetPersonParser: IAfip_PersonParser;
+begin
+  case rgJsonLibrary.ItemIndex of
+    0: Result := TAfip_Parser.Create;
+  else
+    raise Exception.Create('No se pudo crear IAfip_PersonParser :: Debe indicar una biblioteca JSON');
+  end;
+end;
+
+function TMain.CreateAfipAPI: IApi_Afip;
+begin
+  Result := TAfipQuery.Create(GetHttpClient, GetPersonParser, GetItemsParser, Persister);
+end;
+
 procedure TMain.btnQueryPersonaClick(Sender: TObject);
 var
   Api: IApi_Afip;
   Persona: IPersona_Afip;
 begin
-  Api := TAfipQuery.Create(GetHttpClient, Persister);
+  Api := CreateAfipAPI;
   Persona := Api.ConsultaPersona(edNroCuit.Text);
   MemoRawJsonPersona.Text := Persona.RawJson;
   MemoQueryPersona.Clear;
@@ -128,7 +178,7 @@ var
   Api: IApi_Afip;
   Time: TBenchmarkTime;
 begin
-  Api := TAfipQuery.Create(GetHttpClient, Persister);
+  Api := CreateAfipAPI;
   Time := TBenchmark.Benchmark(1, procedure
   var
     I: Integer;
@@ -175,25 +225,6 @@ begin
   lbTime.Caption := Format('Time: %d msec', [Time.MSecs]);
 end;
 
-function TMain.GetHttpClient: IHttpClient;
-begin
-  case rgHttpLibrary.ItemIndex of
-    0: Result := TSynapseHttpClient.Create;
-    1: result := TNativeHttpClient.Create;
-  else
-    raise Exception.Create('Debe indicar una biblioteca HTTP');
-  end;
-end;
-
-procedure TMain.rgPersistenciaClick(Sender: TObject);
-begin
-  case rgPersistencia.ItemIndex of
-    1: FPersister := TMemoryAfipPersister.Create;
-  else
-    FPersister := NIL; // no usar persistencia
-  end;
-end;
-
 procedure TMain.btnGetParametrosClick(Sender: TObject);
 begin
   btnGetParametros.Enabled := False;
@@ -211,7 +242,7 @@ var
   AStream: TStream;
   AFileStream: TFileStream;
 begin
-  Api := TAfipQuery.Create(GetHttpClient, Persister);
+  Api := CreateAfipAPI;
   AStream := Api.ObtenerConstancia(edCuitConstancia.Text);
   try
     AStream.Position := 0;
@@ -236,7 +267,7 @@ var
   Items: TArray<string>;
   Nro: string;
 begin
-  Api := TAfipQuery.Create(GetHttpClient, Persister);
+  Api := CreateAfipAPI;
   Items := Api.ConsultaNroDocumento(edNroDni.Text);
   MemoQueryDni.Clear;
   for Nro in Items do
