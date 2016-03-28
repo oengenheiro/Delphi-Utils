@@ -645,7 +645,12 @@ type
     /// </summary>
     function GetPersister: IPersister_Afip;
 
-    property Persister: IPersister_Afip read GetPersister;
+    /// <summary>
+    ///   Asigna la instancia de IPersister_Afip enviada en el parametro Value
+    /// </summary>
+    procedure SetPersister(const Value: IPersister_Afip);
+
+    property Persister: IPersister_Afip read GetPersister write SetPersister;
     property HasPersister: Boolean read GetHasPersister;
   end;
 {$ENDREGION}

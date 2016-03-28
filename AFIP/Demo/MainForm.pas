@@ -3,6 +3,7 @@ unit MainForm;
 interface
 
 uses
+  Afip.PublicAPI.Types,
   Afip.PublicAPI.HttpClient,
   System.Classes,
   Vcl.Forms,
@@ -35,13 +36,19 @@ type
     btnQueryPersona: TButton;
     MemoQueryPersona: TMemo;
     memoParametros: TMemo;
+    rgPersistencia: TRadioGroup;
     procedure btnQueryPersonaClick(Sender: TObject);
     procedure btnQueryDniClick(Sender: TObject);
     procedure btnObtenerConstanciaClick(Sender: TObject);
     procedure btnGetParametrosClick(Sender: TObject);
+    procedure rgPersistenciaClick(Sender: TObject);
   strict private
+    FPersister: IPersister_Afip;
+
     procedure DoGetParametros(const AText: string);
     function GetHttpClient: IHttpClient;
+  strict protected
+    property Persister: IPersister_Afip read FPersister;
   end;
 
 var
@@ -54,7 +61,6 @@ implementation
 uses
   RTL.Benchmark,
   Afip.PublicAPI,
-  Afip.PublicAPI.Types,
   Afip.PublicAPI.Persistance,
   Afip.PublicAPI.NetHttpClient,
   Afip.PublicAPI.SynapseHttpClient,
@@ -94,7 +100,7 @@ var
   Api: IApi_Afip;
   Persona: IPersona_Afip;
 begin
-  Api := TAfipQuery.Create(GetHttpClient);
+  Api := TAfipQuery.Create(GetHttpClient, Persister);
   Persona := Api.ConsultaPersona(edNroCuit.Text);
   MemoRawJsonPersona.Text := Persona.RawJson;
   MemoQueryPersona.Clear;
@@ -122,7 +128,7 @@ var
   Api: IApi_Afip;
   Time: TBenchmarkTime;
 begin
-  Api := TAfipQuery.Create(GetHttpClient);
+  Api := TAfipQuery.Create(GetHttpClient, Persister);
   Time := TBenchmark.Benchmark(1, procedure
   var
     I: Integer;
@@ -179,6 +185,15 @@ begin
   end;
 end;
 
+procedure TMain.rgPersistenciaClick(Sender: TObject);
+begin
+  case rgPersistencia.ItemIndex of
+    1: FPersister := TMemoryAfipPersister.Create;
+  else
+    FPersister := NIL; // no usar persistencia
+  end;
+end;
+
 procedure TMain.btnGetParametrosClick(Sender: TObject);
 begin
   btnGetParametros.Enabled := False;
@@ -196,7 +211,7 @@ var
   AStream: TStream;
   AFileStream: TFileStream;
 begin
-  Api := TAfipQuery.Create(GetHttpClient);
+  Api := TAfipQuery.Create(GetHttpClient, Persister);
   AStream := Api.ObtenerConstancia(edCuitConstancia.Text);
   try
     AStream.Position := 0;
@@ -221,7 +236,7 @@ var
   Items: TArray<string>;
   Nro: string;
 begin
-  Api := TAfipQuery.Create(GetHttpClient);
+  Api := TAfipQuery.Create(GetHttpClient, Persister);
   Items := Api.ConsultaNroDocumento(edNroDni.Text);
   MemoQueryDni.Clear;
   for Nro in Items do

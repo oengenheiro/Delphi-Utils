@@ -29,10 +29,12 @@ type
 
     function GetHasPersister: Boolean;
     function GetPersister: IPersister_Afip;
+    procedure SetPersister(const Value: IPersister_Afip);
 
     function DoExecuteRequest(const AService: TServiceType; const Param: string): string;
   public
-    constructor Create(const AHttpClient: IHttpClient; const APersister: IPersister_Afip = NIL);
+    constructor Create(const AHttpClient: IHttpClient); overload;
+    constructor Create(const AHttpClient: IHttpClient; const APersister: IPersister_Afip); overload;
 
     function ConsultaNroDocumento(const NroDocumento: string): TArray<string>; overload;
     function ObtenerConstancia(const Cuit: string): TStream; overload;
@@ -48,7 +50,7 @@ type
     function GetProvincias(const GetFromPersistent: Boolean): TArray<TItem_Afip>;
     function GetDependecias(const GetFromPersistent: Boolean): TArray<TDependencia_Afip>;
 
-    property Persister: IPersister_Afip read GetPersister;
+    property Persister: IPersister_Afip read GetPersister write SetPersister;
     property HasPersister: Boolean read GetHasPersister;
   end;
 {$ENDREGION}
@@ -59,7 +61,7 @@ uses
   System.SysUtils;
 
 {$REGION 'TAfipQuery'}
-constructor TAfipQuery.Create(const AHttpClient: IHttpClient; const APersister: IPersister_Afip = NIL);
+constructor TAfipQuery.Create(const AHttpClient: IHttpClient);
 const
   BASE_URL = 'https://soa.afip.gob.ar';
   URL_PADRON_V1 = BASE_URL + '/sr-padron/v1/';
@@ -74,9 +76,6 @@ begin
   FPersonParser := TAfip_Parser.Create;
   FItemsParser := TAfip_Parser.Create;
 
-  if APersister <> NIL then
-    FPersister := APersister;
-
   FHttpClient := AHttpClient;
 
   FServicesUrl[stPersona] := URL_PADRON_V2 + 'persona/';
@@ -90,6 +89,26 @@ begin
   FServicesUrl[stActividades] := URL_PARAMETROS_V1 + 'actividades';
   FServicesUrl[stProvincias] := URL_PARAMETROS_V1 + 'provincias';
   FServicesUrl[stDependencias] := URL_PARAMETROS_V2 + 'dependencias';
+end;
+
+constructor TAfipQuery.Create(const AHttpClient: IHttpClient; const APersister: IPersister_Afip);
+begin
+  Create(AHttpClient);
+  if APersister <> NIL then
+    FPersister := APersister;
+end;
+
+function TAfipQuery.GetPersister: IPersister_Afip;
+begin
+  if not HasPersister then
+    raise Exception.Create('No persister assigned');
+
+  Result := FPersister;
+end;
+
+procedure TAfipQuery.SetPersister(const Value: IPersister_Afip);
+begin
+  FPersister := Value;
 end;
 
 function TAfipQuery.GetHasPersister: Boolean;
@@ -319,14 +338,6 @@ begin
 
   if HasPersister then
     Persister.AddImpuestos(Result);
-end;
-
-function TAfipQuery.GetPersister: IPersister_Afip;
-begin
-  if not HasPersister then
-    raise Exception.Create('No persister assigned');
-
-  Result := FPersister;
 end;
 
 function TAfipQuery.GetProvincias(const GetFromPersistent: Boolean): TArray<TItem_Afip>;

@@ -112,7 +112,7 @@ end;
 
 function TAfip_Parser.JsonToDependencies(const AJson: string): TArray<TDependencia_Afip>;
 begin
-
+{ TODO : function TAfip_Parser.JsonToDependencies(const AJson: string): TArray<TDependencia_Afip>; }
 end;
 
 function TAfip_Parser.JsonToPerson(const AJson: string): IPersona_Afip;

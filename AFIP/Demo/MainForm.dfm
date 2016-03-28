@@ -2,7 +2,7 @@ object Main: TMain
   Left = 0
   Top = 0
   Caption = 'Test API Publica AFIP'
-  ClientHeight = 532
+  ClientHeight = 557
   ClientWidth = 479
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
@@ -18,26 +18,24 @@ object Main: TMain
     Left = 0
     Top = 72
     Width = 479
-    Height = 460
-    ActivePage = TabSheet1
+    Height = 485
+    ActivePage = TabSheet4
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 469
-    ExplicitHeight = 191
+    ExplicitHeight = 460
     object TabSheet1: TTabSheet
       Caption = 'Consulta por numero de cuit'
-      ExplicitTop = 24
-      ExplicitWidth = 461
-      ExplicitHeight = 153
+      ExplicitHeight = 428
       object MemoQueryPersona: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 54
+        Top = 79
         Width = 465
         Height = 244
         Align = alBottom
         ScrollBars = ssVertical
         TabOrder = 3
+        ExplicitTop = 54
       end
       object btnQueryPersona: TButton
         Left = 328
@@ -51,14 +49,13 @@ object Main: TMain
       object MemoRawJsonPersona: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 304
+        Top = 329
         Width = 465
         Height = 121
         Align = alBottom
         ScrollBars = ssVertical
         TabOrder = 1
-        ExplicitTop = 29
-        ExplicitWidth = 455
+        ExplicitTop = 304
       end
       object edNroCuit: TLabeledEdit
         Left = 14
@@ -75,18 +72,17 @@ object Main: TMain
     object TabSheet2: TTabSheet
       Caption = 'Consulta por numero de documento'
       ImageIndex = 1
-      ExplicitTop = 24
-      ExplicitWidth = 461
-      ExplicitHeight = 188
+      ExplicitHeight = 428
       object MemoQueryDni: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 78
+        Top = 103
         Width = 465
         Height = 347
         Align = alBottom
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitTop = 78
       end
       object btnQueryDni: TButton
         Left = 330
@@ -112,9 +108,7 @@ object Main: TMain
     object TabSheet3: TTabSheet
       Caption = 'Obtener PDF constancia'
       ImageIndex = 2
-      ExplicitTop = 24
-      ExplicitWidth = 461
-      ExplicitHeight = 153
+      ExplicitHeight = 428
       object btnObtenerConstancia: TButton
         Left = 332
         Top = 19
@@ -139,17 +133,17 @@ object Main: TMain
     object TabSheet4: TTabSheet
       Caption = 'Parametros'
       ImageIndex = 3
-      ExplicitLeft = 5
-      ExplicitTop = 30
+      ExplicitHeight = 428
       object lbTime: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 33
+        Top = 58
         Width = 465
         Height = 17
         Align = alBottom
-        ExplicitTop = 147
-        ExplicitWidth = 4
+        Caption = 'Time:'
+        ExplicitTop = 41
+        ExplicitWidth = 31
       end
       object btnGetParametros: TButton
         Left = 188
@@ -182,12 +176,13 @@ object Main: TMain
       object memoParametros: TMemo
         AlignWithMargins = True
         Left = 3
-        Top = 56
+        Top = 81
         Width = 465
         Height = 369
         Align = alBottom
         ScrollBars = ssVertical
         TabOrder = 2
+        ExplicitTop = 56
       end
     end
   end
@@ -201,22 +196,38 @@ object Main: TMain
     BevelOuter = bvNone
     ShowCaption = False
     TabOrder = 1
-    ExplicitWidth = 463
+    ExplicitLeft = 4
     object rgHttpLibrary: TRadioGroup
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 467
+      Width = 236
       Height = 60
-      Align = alClient
+      Align = alLeft
       Caption = 'Biblioteca HTTP'
       ItemIndex = 0
       Items.Strings = (
         'Synapse (open source, third-party)'
         'NetHttp (Delphi XE8+)')
       TabOrder = 0
-      ExplicitLeft = 2
-      ExplicitWidth = 457
+      ExplicitLeft = -11
+    end
+    object rgPersistencia: TRadioGroup
+      AlignWithMargins = True
+      Left = 245
+      Top = 3
+      Width = 236
+      Height = 60
+      Align = alLeft
+      Caption = 'Biblioteca HTTP'
+      ItemIndex = 0
+      Items.Strings = (
+        'No usar'
+        'TMemoryAfipPersister')
+      TabOrder = 1
+      OnClick = rgPersistenciaClick
+      ExplicitLeft = 213
+      ExplicitTop = 0
     end
   end
   object SaveDialog1: TSaveDialog
