@@ -82,7 +82,7 @@ begin
 
   Response := TStringList.Create;
   try
-    Response.LoadFromStream(FHttp.Document);
+    Response.LoadFromStream(FHttp.Document, TEncoding.UTF8);
     Result := Response.Text;
   finally
     Response.Free;
