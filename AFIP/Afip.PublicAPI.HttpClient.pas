@@ -1,9 +1,14 @@
 unit Afip.PublicAPI.HttpClient;
 
+// Source: https://github.com/ortuagustin/Delphi-Utils
+// Author: Ortu Agustin
+
+// Interface necesaria para invocar el metodo GET del protocolo REST
+
 interface
 
 uses
-  System.Classes;
+  Classes;
 
 type
   /// <summary>

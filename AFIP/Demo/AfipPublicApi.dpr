@@ -1,7 +1,7 @@
 program AfipPublicApi;
 
 uses
-  Vcl.Forms,
+  Forms,
   MainForm in 'MainForm.pas' {Main},
   Afip.PublicAPI.Types in '..\Afip.PublicAPI.Types.pas',
   Afip.PublicAPI in '..\Afip.PublicAPI.pas',
@@ -19,6 +19,7 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   ReportMemoryLeaksOnShutdown := True;
+  Application.Title := 'AFIP - API Pública Consulta Padrón Contribuyentes';
   Application.CreateForm(TMain, Main);
   Application.Run;
 end.

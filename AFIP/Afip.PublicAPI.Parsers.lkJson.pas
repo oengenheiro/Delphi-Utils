@@ -1,3 +1,5 @@
+{$I jedi.inc}
+
 unit Afip.PublicAPI.Parsers.lkJson;
 
 // Source: https://github.com/ortuagustin/Delphi-Utils
@@ -30,9 +32,10 @@ implementation
 
 uses
   uLkJSON,
-  System.SysUtils,
-  System.Variants,
-  System.Generics.Collections;
+  SysUtils,
+  Variants,
+  Generics.Collections,
+  Windows;
 
 type
 {$REGION 'TlkJSONobjectHelper'}
@@ -104,7 +107,11 @@ var
   var
     AFormatSettings: TFormatSettings;
   begin
+{$IFDEF DELPHIXE8_UP}
     AFormatSettings := TFormatSettings.Create;
+{$ELSE}
+  GetLocaleFormatSettings(LOCALE_SYSTEM_DEFAULT, AFormatSettings);
+{$ENDIF}
     AFormatSettings.DateSeparator := '-';
     AFormatSettings.ShortDateFormat := 'yyyy-mm-dd';
     AFormatSettings.LongDateFormat := 'yyyy-mm-dd';
@@ -172,8 +179,15 @@ begin
     Data := JsonObject.Field['data'] as TlkJSONobject;
 
     PersonObj.IdPersona := Data.getInt64('idPersona');
-    PersonObj.TipoPersona := TTipoPersona.FromString(Data.getString('tipoPersona'));
-    PersonObj.TipoClave := TTipoClave.FromString(Data.getString('tipoClave'));
+
+  {$IFDEF DELPHIXE3_UP}
+    PersonObj.TipoPersona := TTipoPersona.Parse(Data.getString('tipoPersona'));
+    PersonObj.TipoClave := TTipoClave.Parse(Data.getString('tipoClave'));
+  {$ELSE}
+    PersonObj.TipoPersona := TTipoPersonaHelper.Parse(Data.getString('tipoPersona'));
+    PersonObj.TipoClave := TTipoClaveHelper.Parse(Data.getString('tipoClave'));
+  {$ENDIF}
+
     PersonObj.EstadoClave := ParseBoolean(Data.getString('estadoClave'));
     PersonObj.Nombre := Data.getString('nombre');
     PersonObj.TipoDocumento := Data.getString('tipoDocumento');

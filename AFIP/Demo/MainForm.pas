@@ -1,3 +1,5 @@
+{$I jedi.inc}
+
 unit MainForm;
 
 interface
@@ -7,13 +9,13 @@ uses
   Afip.PublicAPI.Types,
   Afip.PublicAPI.HttpClient,
   Afip.PublicAPI.Parsers,
-  System.Classes,
-  Vcl.Forms,
-  Vcl.StdCtrls,
-  Vcl.Controls,
-  Vcl.ComCtrls,
-  Vcl.ExtCtrls,
-  Vcl.Dialogs;
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
+  Controls,
+  ComCtrls,
+  Classes;
 
 type
   TMain = class(TForm)
@@ -74,8 +76,8 @@ uses
   Afip.PublicAPI.SynapseHttpClient,
   Afip.PublicAPI.Parsers.Native,
   Afip.PublicAPI.Parsers.lkJson,
-  System.SysUtils,
-  System.Generics.Collections;
+  SysUtils,
+  Generics.Collections;
 
 function ParseArray(Input: TArray<Integer>): string;
 var
@@ -84,9 +86,9 @@ begin
   for s in Input do
   begin
     if Result = EmptyStr then
-      Result := s.ToString
+      Result := IntToStr(s)
     else
-      Result := Result + ', ' + s.ToString;
+      Result := Result + ', ' + IntToStr(s);
   end;
 end;
 
@@ -118,7 +120,9 @@ function TMain.GetHttpClient: IHttpClient;
 begin
   case rgHttpLibrary.ItemIndex of
     0: Result := TSynapseHttpClient.Create;
+{$IFDEF DELPHIXE8_UP}
     1: Result := TNativeHttpClient.Create;
+{$ENDIF}
   else
     raise Exception.Create('Debe indicar una biblioteca HTTP');
   end;
@@ -127,7 +131,9 @@ end;
 function TMain.GetItemsParser: IAfip_ItemParser;
 begin
   case rgJsonLibrary.ItemIndex of
+{$IFDEF DELPHIXE8_UP}
     0: Result := TNativeJsonAfip_Parser.Create;
+{$ENDIF}
     1: Result := TlkJsonAfip_Parser.Create;
   else
     raise Exception.Create('No se pudo crear IAfip_ItemParser :: Debe indicar una biblioteca JSON');
@@ -137,7 +143,9 @@ end;
 function TMain.GetPersonParser: IAfip_PersonParser;
 begin
   case rgJsonLibrary.ItemIndex of
+{$IFDEF DELPHIXE8_UP}
     0: Result := TNativeJsonAfip_Parser.Create;
+{$ENDIF}
     1: Result := TlkJsonAfip_Parser.Create;
   else
     raise Exception.Create('No se pudo crear IAfip_PersonParser :: Debe indicar una biblioteca JSON');
@@ -158,15 +166,22 @@ begin
   Persona := Api.ConsultaPersona(edNroCuit.Text);
   MemoRawJsonPersona.Text := Persona.RawJson;
   MemoQueryPersona.Clear;
-  MemoQueryPersona.Lines.Add('IdPersona = ' + Persona.IdPersona.ToString);
+  MemoQueryPersona.Lines.Add('IdPersona = ' + IntToStr(Persona.IdPersona));
+
+{$IFDEF DELPHIXE3_UP}
   MemoQueryPersona.Lines.Add('TipoPersona = ' + Persona.TipoPersona.ToString);
   MemoQueryPersona.Lines.Add('TipoClave = ' + Persona.TipoClave.ToString);
-  MemoQueryPersona.Lines.Add('EstadoClave = ' + Persona.EstadoClave.ToString(TUseBoolStrs.True));
+{$ELSE}
+  MemoQueryPersona.Lines.Add('TipoPersona = ' + TTipoPersonaHelper.ToString(Persona.TipoPersona));
+  MemoQueryPersona.Lines.Add('TipoClave = ' + TTipoClaveHelper.ToString(Persona.TipoClave));
+{$ENDIF}
+
+  MemoQueryPersona.Lines.Add('EstadoClave = ' + BoolToStr(Persona.EstadoClave, True));
   MemoQueryPersona.Lines.Add('Nombre = ' + Persona.Nombre);
   MemoQueryPersona.Lines.Add('TipoDocumento = ' + Persona.TipoDocumento);
   MemoQueryPersona.Lines.Add('NumeroDocumento = ' + Persona.NroDocumento);
-  MemoQueryPersona.Lines.Add('IdDependencia = ' + Persona.IdDependencia.ToString);
-  MemoQueryPersona.Lines.Add('MesCierre = ' + Persona.MesCierre.ToString);
+  MemoQueryPersona.Lines.Add('IdDependencia = ' + IntToStr(Persona.IdDependencia));
+  MemoQueryPersona.Lines.Add('MesCierre = ' + IntToStr(Persona.MesCierre));
   MemoQueryPersona.Lines.Add('FechaInscripcion = ' + DateToStr(Persona.FechaInscripcion));
   MemoQueryPersona.Lines.Add('FechaContratoSocial = ' + DateToStr(Persona.FechaContratoSocial));
   MemoQueryPersona.Lines.Add('FechaFallecimiento = ' + DateToStr(Persona.FechaFallecimiento));

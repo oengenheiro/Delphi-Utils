@@ -12,9 +12,16 @@ uses
   Afip.PublicAPI.Types,
   Afip.PublicAPI.HttpClient,
   Afip.PublicAPI.Parsers,
-  System.Classes;
+  Classes;
 
 type
+  // http://stackoverflow.com/questions/14003153/
+  // ocultar el constructor por defecto (sin parametros)
+  TInterfacedObject = class(System.TInterfacedObject)
+  strict private
+    constructor Create; virtual; abstract;
+  end;
+
 {$REGION 'TAfipQuery'}
   TAfipQuery = class(TInterfacedObject, IApi_Afip)
   private type
@@ -61,7 +68,7 @@ type
 implementation
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 {$REGION 'TAfipQuery'}
 
@@ -153,7 +160,7 @@ end;
 
 function TAfipQuery.ObtenerConstancia(const Cuit: Int64): TStream;
 begin
-  Result := ObtenerConstancia(Cuit.ToString);
+  Result := ObtenerConstancia(IntToStr(Cuit));
 end;
 
 function TAfipQuery.ObtenerConstancia(const Cuit: string): TStream;

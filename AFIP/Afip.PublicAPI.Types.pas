@@ -1,3 +1,5 @@
+{$I jedi.inc}
+
 unit Afip.PublicAPI.Types;
 
 // Source: https://github.com/ortuagustin/Delphi-Utils
@@ -8,15 +10,15 @@ unit Afip.PublicAPI.Types;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Generics.Collections;
+  SysUtils,
+  Classes,
+  Generics.Collections;
 
 type
 {$REGION 'Enumerative types and helpers'}
   TTipoPersona = (tpUnknown, tpFisica, tpJuridica);
 
-  TTipoPersonaHelper = record helper for TTipoPersona
+  TTipoPersonaHelper = record {$IFDEF DELPHIXE3_UP}helper for TTipoPersona{$ENDIF}
   public
     /// <summary>
     ///   Devuelve una representacion en string para el valor de TTipoPersona
@@ -26,18 +28,21 @@ type
     /// <summary>
     ///   Devuelve una representacion en string para el valor de TTipoPersona
     /// </summary>
+    {$IFDEF DELPHIXE3_UP}
     function ToString: string; overload;
+    {$ENDIF}
 
     /// <summary>
     ///   Convierte una expresion string en su equivalente enumerativo
     ///   TTipoPersona
     /// </summary>
-    class function FromString(const Value: string): TTipoPersona; static;
+    class function Parse(const Value: string): TTipoPersona; static;
   end;
 
   TTipoClave = (tcUnknown, tpCuit, tpCuil, tpCdi);
 
-  TTipoClaveHelper = record helper for TTipoClave
+
+  TTipoClaveHelper = record {$IFDEF DELPHIXE3_UP}helper for TTipoClave{$ENDIF}
   public
     /// <summary>
     ///   Devuelve una representacion en string para el valor de TTipoClave
@@ -47,13 +52,15 @@ type
     /// <summary>
     ///   Devuelve una representacion en string para el valor de TTipoClave
     /// </summary>
+    {$IFDEF DELPHIXE3_UP}
     function ToString: string; overload;
+    {$ENDIF}
 
     /// <summary>
     ///   Convierte una expresion string en su equivalente enumerativo
     ///   TTipoClave
     /// </summary>
-    class function FromString(const Value: string): TTipoClave; static;
+    class function Parse(const Value: string): TTipoClave; static;
   end;
 {$ENDREGION}
 
@@ -897,13 +904,17 @@ end;
 
 
 {$REGION 'TTipoPersonaHelper'}
-class function TTipoPersonaHelper.FromString(const Value: string): TTipoPersona;
+class function TTipoPersonaHelper.Parse(const Value: string): TTipoPersona;
 var
   AResult: TTipoPersona;
 begin
   for AResult := Low(TTipoPersona) to High(TTipoPersona) do
   begin
+  {$IFDEF DELPHIXE3_UP}
     if CompareText(Value, AResult.ToString) = 0 then
+  {$ELSE}
+    if CompareText(Value, TTipoPersonaHelper.ToString(AResult)) = 0 then
+  {$ENDIF}
       Exit(AResult);
   end;
 
@@ -920,20 +931,26 @@ begin
   end;
 end;
 
+{$IFDEF DELPHIXE3_UP}
 function TTipoPersonaHelper.ToString: string;
 begin
   Result := ToString(Self);
 end;
+{$ENDIF}
 {$ENDREGION}
 
 {$REGION 'TTipoClaveHelper'}
-class function TTipoClaveHelper.FromString(const Value: string): TTipoClave;
+class function TTipoClaveHelper.Parse(const Value: string): TTipoClave;
 var
   AResult: TTipoClave;
 begin
   for AResult := Low(TTipoClave) to High(TTipoClave) do
   begin
-    if Value = AResult.ToString  then
+  {$IFDEF DELPHIXE3_UP}
+    if CompareText(Value, AResult.ToString) = 0 then
+  {$ELSE}
+    if CompareText(Value, TTipoClaveHelper.ToString(AResult)) = 0 then
+  {$ENDIF}
       Exit(AResult);
   end;
 
@@ -951,10 +968,12 @@ begin
   end;
 end;
 
+{$IFDEF DELPHIXE3_UP}
 function TTipoClaveHelper.ToString: string;
 begin
   Result := ToString(Self);
 end;
+{$ENDIF}
 {$ENDREGION}
 
 {$REGION 'Exceptions'}

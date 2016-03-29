@@ -1,7 +1,15 @@
+{$I jedi.inc}
+
 unit Afip.PublicAPI.NetHttpClient;
+
+// Source: https://github.com/ortuagustin/Delphi-Utils
+// Author: Ortu Agustin
+
+// Implementacion de IHttpClient usando la biblioteca System.Net
 
 interface
 
+{$IFDEF DELPHIXE8_UP}
 uses
   Afip.PublicAPI.HttpClient,
   System.Classes,
@@ -23,9 +31,11 @@ type
     function HttpGetText(const AUrl: string): string;
     function HttpGetBinary(const AUrl: string): TStream;
   end;
+{$ENDIF}
 
 implementation
 
+{$IFDEF DELPHIXE8_UP}
 uses
   System.SysUtils;
 
@@ -59,5 +69,7 @@ begin
   FHttpRequest.URL := AUrl;
   Result := FHttpRequest.Execute.ContentAsString(TEncoding.UTF8);
 end;
+{$ENDIF}
 
 end.
+

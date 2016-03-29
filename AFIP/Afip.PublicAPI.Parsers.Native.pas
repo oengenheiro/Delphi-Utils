@@ -1,3 +1,5 @@
+{$I jedi.inc}
+
 unit Afip.PublicAPI.Parsers.Native;
 
 // Source: https://github.com/ortuagustin/Delphi-Utils
@@ -7,6 +9,7 @@ unit Afip.PublicAPI.Parsers.Native;
 
 interface
 
+{$IFDEF DELPHIXE8_UP}
 uses
   Afip.PublicAPI.Types,
   Afip.PublicAPI.Parsers;
@@ -24,9 +27,11 @@ type
     function JsonToDependencies(const AJson: string): TArray<TDependencia_Afip>;
 {$ENDREGION}
   end;
+{$ENDIF}
 
 implementation
 
+{$IFDEF DELPHIXE8_UP}
 uses
   System.Classes,
   System.SysUtils,
@@ -193,11 +198,11 @@ begin
 
     JsonValue := JData.GetValue('tipoPersona');
     if JsonValue <> NIL then
-      PersonObj.TipoPersona := TTipoPersona.FromString(JsonValue.Value);
+      PersonObj.TipoPersona := TTipoPersona.Parse(JsonValue.Value);
 
     JsonValue := JData.GetValue('tipoClave');
     if JsonValue <> NIL then
-      PersonObj.TipoClave := TTipoClave.FromString(JsonValue.Value);
+      PersonObj.TipoClave := TTipoClave.Parse(JsonValue.Value);
 
     JsonValue := JData.GetValue('estadoClave');
     if JsonValue <> NIL then
@@ -258,6 +263,7 @@ begin
     JObject.Free;
   end;
 end;
+{$ENDIF}
 {$ENDREGION}
 
 end.

@@ -1,11 +1,16 @@
 unit Afip.PublicAPI.SynapseHttpClient;
 
+// Source: https://github.com/ortuagustin/Delphi-Utils
+// Author: Ortu Agustin
+
+// Implementacion de IHttpClient usando la biblioteca Synapse
+
 interface
 
 uses
   Afip.PublicAPI.HttpClient,
-  System.Classes,
-  System.SysUtils,
+  Classes,
+  SysUtils,
   httpsend;
 
 type

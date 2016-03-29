@@ -23,13 +23,8 @@ object Main: TMain
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
-    ExplicitTop = 72
-    ExplicitWidth = 479
-    ExplicitHeight = 485
     object TabSheet1: TTabSheet
       Caption = 'Consulta por numero de cuit'
-      ExplicitWidth = 659
-      ExplicitHeight = 453
       object MemoQueryPersona: TMemo
         AlignWithMargins = True
         Left = 3
@@ -39,8 +34,6 @@ object Main: TMain
         Align = alBottom
         ScrollBars = ssVertical
         TabOrder = 3
-        ExplicitTop = 79
-        ExplicitWidth = 653
       end
       object btnQueryPersona: TButton
         Left = 328
@@ -60,8 +53,6 @@ object Main: TMain
         Align = alBottom
         ScrollBars = ssVertical
         TabOrder = 1
-        ExplicitTop = 329
-        ExplicitWidth = 653
       end
       object edNroCuit: TLabeledEdit
         Left = 14
@@ -78,6 +69,8 @@ object Main: TMain
     object TabSheet2: TTabSheet
       Caption = 'Consulta por numero de documento'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 659
       ExplicitHeight = 453
       object MemoQueryDni: TMemo
@@ -116,6 +109,8 @@ object Main: TMain
     object TabSheet3: TTabSheet
       Caption = 'Obtener PDF constancia'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 659
       ExplicitHeight = 453
       object btnObtenerConstancia: TButton
@@ -142,6 +137,8 @@ object Main: TMain
     object TabSheet4: TTabSheet
       Caption = 'Parametros'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 471
       ExplicitHeight = 453
       object lbTime: TLabel
@@ -152,7 +149,6 @@ object Main: TMain
         Height = 17
         Align = alBottom
         Caption = 'Time:'
-        ExplicitTop = 58
         ExplicitWidth = 31
       end
       object btnGetParametros: TButton
@@ -220,7 +216,6 @@ object Main: TMain
         'Synapse (open source, third-party)'
         'NetHttp (Delphi XE8+)')
       TabOrder = 0
-      ExplicitHeight = 60
     end
     object rgPersistencia: TRadioGroup
       AlignWithMargins = True
@@ -236,8 +231,6 @@ object Main: TMain
         'TMemoryAfipPersister')
       TabOrder = 2
       OnClick = rgPersistenciaClick
-      ExplicitLeft = 245
-      ExplicitHeight = 60
     end
     object rgJsonLibrary: TRadioGroup
       AlignWithMargins = True
@@ -252,7 +245,6 @@ object Main: TMain
         'System.Json'
         'lkJson (open source, third-party)')
       TabOrder = 1
-      ExplicitHeight = 64
     end
   end
   object SaveDialog1: TSaveDialog

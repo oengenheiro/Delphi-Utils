@@ -10,7 +10,7 @@ interface
 
 uses
   Afip.PublicAPI.Types,
-  System.Generics.Collections;
+  Generics.Collections;
 
 type
 {$REGION 'TMemoryAfipPersister'}
@@ -268,40 +268,31 @@ end;
 function TMemoryAfipPersister.DoGetFrom(ADictionary: TDependenciesDictionary): TArray<TDependencia_Afip>;
 var
   I: Integer;
-  Keys: TArray<Integer>;
-  Values: TArray<TDependencia_Afip>;
+  AItem: TPair<Integer, TDependencia_Afip>;
 begin
   if ADictionary.Count = 0 then
     raise EAfipPersistanceEmpty.Create('No data in cache');
 
-  Keys := ADictionary.Keys.ToArray;
-  Values := ADictionary.Values.ToArray;
-
   SetLength(Result, ADictionary.Count);
   for I := 0 to ADictionary.Count - 1 do
-  begin
-    Result[I].Id := Keys[I];
-    Result[I] := Values[I];
-  end;
+    Result[I] := AItem.Value;
 end;
 
 function TMemoryAfipPersister.DoGetFrom(ADictionary: TAfipDictionary): TArray<TItem_Afip>;
 var
   I: Integer;
-  Keys: TArray<Integer>;
-  Values: TArray<string>;
+  AItem: TPair<Integer, string>;
 begin
   if ADictionary.Count = 0 then
     raise EAfipPersistanceEmpty.Create('No data in cache');
 
-  Keys := ADictionary.Keys.ToArray;
-  Values := ADictionary.Values.ToArray;
-
   SetLength(Result, ADictionary.Count);
-  for I := 0 to ADictionary.Count - 1 do
+  I := 0;
+  for AItem in ADictionary do
   begin
-    Result[I].Id := Keys[I];
-    Result[I].Descripcion := Values[I];
+    Result[I].Id := AItem.Key;
+    Result[I].Descripcion := AItem.Value;
+    Inc(I);
   end;
 end;
 
