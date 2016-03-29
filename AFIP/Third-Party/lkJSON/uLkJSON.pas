@@ -1,9 +1,9 @@
 {
-  LkJSON v1.07
+  LkJSON v1.08
 
-  06 november 2009
+  29 March 2016
 
-* Copyright (c) 2006,2007,2008,2009 Leonid Koninin
+* Copyright (c) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Leonid Koninin
 * leon_kon@users.sourceforge.net
 * All rights reserved.
 *
@@ -30,6 +30,7 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   changes:
+  v1.08 29/03/2016 * fixed a bug in js_string. Now it will UTF8 Encode WideStrings properly
 
   v1.07 06/11/2009 * fixed a bug in js_string - thanks to Andrew G. Khodotov
                    * fixed error with double-slashes - thanks to anonymous user
@@ -1880,7 +1881,7 @@ var
 
     js := TlkJSONstring.Create;
 {$ifdef USE_D2009}
-    js.FValue := UTF8ToString(ws);
+    js.FValue := UTF8Encode(ws);
 {$else}
     js.FValue := UTF8Decode(ws);
 {$endif}
