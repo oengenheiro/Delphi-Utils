@@ -63,7 +63,7 @@ end;
 procedure TSynapseHttpClient.ExecuteGet(const AUrl: string);
 begin
   if not FHttp.HTTPMethod('GET', AUrl) then
-  raise ESynapseException.Create(FHttp.ResultCode, FHttp.ResultString);
+    raise ESynapseException.Create(FHttp.ResultCode, FHttp.ResultString);
 end;
 
 function TSynapseHttpClient.HttpGetBinary(const AUrl: string): TStream;
