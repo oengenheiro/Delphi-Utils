@@ -1,4 +1,4 @@
-unit Vcl.TrayNotifications.Tethering;
+unit Vcl.AppTethering.Notifications;
 
 // Source: https://github.com/ortuagustin/Delphi-Utils
 // Author: Ortu Agustin

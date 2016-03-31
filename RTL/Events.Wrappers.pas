@@ -12,7 +12,7 @@ uses
   {$IF CompilerVersion > 21}
   System.Classes,
   System.SysUtils,
-  Vcl.Controls,
+  Vcl.Controls;
   {$ELSE}
   Classes,
   SysUtils,
