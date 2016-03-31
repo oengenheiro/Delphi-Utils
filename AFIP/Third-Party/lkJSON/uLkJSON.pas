@@ -143,6 +143,9 @@
 
 unit uLkJSON;
 
+{$HINTS OFF}
+{$WARNINGS OFF}
+
 {$IFDEF fpc}
   {$MODE objfpc}
   {$H+}
@@ -1056,7 +1059,6 @@ end;
 
 procedure TlkJSONobject.Delete(idx: Integer);
 var
-  i,j,k:cardinal;
   mth: TlkJSONobjectmethod;
 begin
   if (idx >= 0) and (idx < Count) then
@@ -2623,5 +2625,8 @@ initialization
   init_rnd;
 {$ENDIF USE_HASH}
 {$ENDIF THREADSAFE}
+
+{$HINTS ON}
+{$WARNINGS ON}
 end.
 

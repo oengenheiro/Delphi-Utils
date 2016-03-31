@@ -76,6 +76,9 @@ Ad-Hoc key and certificate for each incomming connection by self. It slowdown
 accepting of new connections!
 }
 
+{$HINTS OFF}
+{$WARNINGS OFF}
+
 {$IFDEF FPC}
   {$MODE DELPHI}
 {$ENDIF}
@@ -922,5 +925,8 @@ end;
 initialization
   if InitSSLInterface then
     SSLImplementation := TSSLOpenSSL;
+
+{$HINTS ON}
+{$WARNINGS ON}
 
 end.

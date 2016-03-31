@@ -55,6 +55,9 @@
 {$R-}
 {$H+}
 
+{$HINTS OFF}
+{$WARNINGS OFF}
+
 {$IFDEF UNICODE}
   {$WARN IMPLICIT_STRING_CAST OFF}
   {$WARN IMPLICIT_STRING_CAST_LOSS OFF}
@@ -2121,4 +2124,8 @@ begin
     CustomMonthNames[n] := {$IFDEF COMPILER15_UP}FormatSettings.{$ENDIF}ShortMonthNames[n];
     MyMonthNames[0, n] := {$IFDEF COMPILER15_UP}FormatSettings.{$ENDIF}ShortMonthNames[n];
   end;
+
+{$HINTS ON}
+{$WARNINGS ON}
+
 end.

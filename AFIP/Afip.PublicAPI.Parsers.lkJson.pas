@@ -142,14 +142,8 @@ var
     for I := 0 to AInput.Count - 1 do
     begin
       LItem := AInput.Child[I] as TlkJSONobject;
-
-      try
-        IdImpuesto := LItem.Field['idImpuesto'].Value;
-        IdCategoria := LItem.Field['idCategoria'].Value;
-      except
-        Continue;
-      end;
-
+      IdImpuesto := LItem.Field['idImpuesto'].Value;
+      IdCategoria := LItem.Field['idCategoria'].Value;
       Result[I] := TPair<Integer, Integer>.Create(IdImpuesto, IdCategoria);
     end;
   end;
