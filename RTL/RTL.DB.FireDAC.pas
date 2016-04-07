@@ -4,13 +4,14 @@ interface
 
 uses
   RTL.DB,
+  System.Classes,
   Data.DB;
 
 type
   TFDMemTableDataSetCloner = class(TInterfacedObject, IDataSetCloner)
   public
-    function Copy(ASource: TDataSet): TDataSet;
-    function CopySelected(const ASelectedRecords: TArray<TBookmark>; ASource: TDataSet): TDataSet;
+    function Copy(ASource: TDataSet; AOwner: TComponent): TDataSet;
+    function CopySelected(const ASelectedRecords: TArray<TBookmark>; ASource: TDataSet; AOwner: TComponent): TDataSet;
   end;
 
 implementation
@@ -19,11 +20,11 @@ uses
   FireDAC.Comp.DataSet,
   FireDAC.Comp.Client;
 
-function TFDMemTableDataSetCloner.Copy(ASource: TDataSet): TDataSet;
+function TFDMemTableDataSetCloner.Copy(ASource: TDataSet; AOwner: TComponent): TDataSet;
 var
   ACopy: TFDMemTable;
 begin
-  ACopy := TFDMemTable.Create(NIL);
+  ACopy := TFDMemTable.Create(AOwner);
   try
     ACopy.CopyDataSet(ASource, [coStructure, coAppend, coRestart]);
   finally
@@ -31,12 +32,12 @@ begin
   end;
 end;
 
-function TFDMemTableDataSetCloner.CopySelected(const ASelectedRecords: TArray<TBookmark>; ASource: TDataSet): TDataSet;
+function TFDMemTableDataSetCloner.CopySelected(const ASelectedRecords: TArray<TBookmark>; ASource: TDataSet; AOwner: TComponent): TDataSet;
 var
   ACopy: TFDMemTable;
   I: Integer;
 begin
-  ACopy := TFDMemTable.Create(NIL);
+  ACopy := TFDMemTable.Create(AOwner);
   try
     ACopy.CopyDataSet(ASource, [coStructure, coRestart]);
     ASource.DisableControls;

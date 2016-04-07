@@ -176,7 +176,7 @@ begin
   try
     LQuery.SQL.Text := Format(' SELECT * FROM [%s] ', [SheetName]);
     LQuery.Open;
-    Result := ACloner.Copy(LQuery);
+    Result := ACloner.Copy(LQuery, NIL);
   finally
     LQuery.Free;
   end;
