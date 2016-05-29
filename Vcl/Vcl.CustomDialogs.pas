@@ -8,20 +8,33 @@ unit Vcl.CustomDialogs;
 
 interface
 
+/// <summary> Shows an Information Message </summary>
 procedure InfoMsg(const Msg: string);
+/// <summary> Shows an Information Message with custom formatting </summary>
 procedure InfoMsgFmt(const Msg: string; const Args: array of const);
-
+/// <summary> Displays a Confirmation Message with a custom formatted prompt (OK-Cancel). Returns True if click on OK. False otherwise </summary>
 function PromptMsg(const Prompt: string): Boolean;
+/// <summary> Displays a Confirmation Message with a prompt (OK-Cancel). Returns True if click on OK. False otherwise </summary>
 function PromptMsgFmt(const Prompt: string; const AParams: array of const): Boolean;
+/// <summary> Displays a Confirmation Message prompting to discard changes (OK-Cancel). Returns True if click on OK. False otherwise </summary>
 function PromptDiscardAndExit: Boolean;
+/// <summary> Displays a Error Message with a custom formatted prompt (OK-Cancel). Returns True if click on OK. False otherwise</summary>
 function ErrorAndPromptMsg(const Prompt: string): Boolean;
-
-procedure ErrorMsg(const Prompt: string);
+/// <summary> Shows an Error Message </summary>
+procedure ErrorMsg(const Msg: string);
+/// <summary> Shows an Error Message with custom formatting </summary>
 procedure ErrorMsgFmt(const Msg: string; const Args: array of const);
-
-function WarningMsg(const Prompt: string; const ShowCancelButton: Boolean = False): Integer;
-function WarningMsgFmt(const Prompt: string; const Args: array of const; const ShowCancelButton: Boolean = False): Integer;
+/// <summary> Shows an Error Message and then calls System.Abort </summary>
+procedure ErrorAbortMsg(const Msg: string);
+/// <summary> Shows an Error Message with custom formatting and then calls System.Abort </summary>
+procedure ErrorAbortMsgFmt(const Msg: string; const Args: array of const);
+/// <summary> Displays a Warning Message </summary>
+function WarningMsg(const Msg: string; const ShowCancelButton: Boolean = False): Integer;
+/// <summary> Displays a Warning Message with custom formatting </summary>
+function WarningMsgFmt(const Msg: string; const Args: array of const; const ShowCancelButton: Boolean = False): Integer;
+/// <summary> Displays a Warning Message with a prompt (OK-Cancel). Returns True if click on OK. False otherwise </summary>
 function WarningPrompt(const Prompt: string): Boolean;
+/// <summary> Displays a Warning Message with a custom formatted prompt (OK-Cancel). Returns True if click on OK. False otherwise </summary>
 function WarningPromptFmt(const Prompt: string; const Args: array of const): Boolean;
 
 implementation
@@ -35,6 +48,17 @@ uses
   Dialogs,
   {$IFEND}
   Vcl.CustomMsgBox;
+
+procedure ErrorAbortMsg(const Msg: string);
+begin
+  ErrorMsg(Msg);
+  Abort;
+end;
+
+procedure ErrorAbortMsgFmt(const Msg: string; const Args: array of const);
+begin
+  ErrorAbortMsg(Format(Msg, Args));
+end;
 
 procedure ErrorMsgFmt(const Msg: string; const Args: array of const);
 begin
@@ -71,23 +95,23 @@ begin
   Result := MsgBox('Error', Prompt, mtError, ['Aceptar', 'Cancelar']) = 0;
 end;
 
-procedure ErrorMsg(const Prompt: string);
+procedure ErrorMsg(const Msg: string);
 begin
-  MsgBox('Error', Prompt, mtError, ['Aceptar']);
+  MsgBox('Error', Msg, mtError, ['Aceptar']);
 end;
 
-function WarningMsgFmt(const Prompt: string; const Args: array of const;
+function WarningMsgFmt(const Msg: string; const Args: array of const;
   const ShowCancelButton: Boolean): Integer;
 begin
-  Result := WarningMsg(Format(Prompt, Args), ShowCancelButton);
+  Result := WarningMsg(Format(Msg, Args), ShowCancelButton);
 end;
 
-function WarningMsg(const Prompt: string; const ShowCancelButton: Boolean): Integer;
+function WarningMsg(const Msg: string; const ShowCancelButton: Boolean): Integer;
 begin
   if ShowCancelButton then
-    Result := MsgBox('Advertencia', Prompt, mtWarning, ['Aceptar', 'Cancelar'])
+    Result := MsgBox('Advertencia', Msg, mtWarning, ['Aceptar', 'Cancelar'])
   else
-    Result := MsgBox('Advertencia', Prompt, mtWarning, ['Aceptar'])
+    Result := MsgBox('Advertencia', Msg, mtWarning, ['Aceptar'])
 end;
 
 function WarningPrompt(const Prompt: string): Boolean;
